@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barema</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <a href="https://unimam.com.br/" target="_blank">
+        <img src="logo/novalogo.png" alt="unimam">
+        </a>
+        <h1></h1>
+    </header>
+<section>
+     <div class="grupo-topo">
+<label id="aprovacao">Envie aqui os seus certificados: <br> APENAS DOCx ou PDF</label>
+<input type="file" id="arquivos" accept=".pdf,.docx" multiple>
+<label for="arquivos" id="escolher">Escolher arquivos</label>
+</div>
+<button id="enviar">ENVIAR</button>
+<p id="status"></p>
+<ul id="listaarquivos"></ul>
+</section>
+
+<!-- AQUI APARECE O RESULTADO DEPOIS DE CLICAR EM ENVIAR (comeca escondido) -->
+<div id="resultado">
+    <h2>Certificados lidos</h2>
+    <p class="dica">Confira cada linha. Se alguma atividade ou quantidade estiver errada, corrija aqui mesmo e a conta é refeita.</p>
+    <table class="cartoes">
+        <thead>
+            <tr>
+                <th>Arquivo</th>
+                <th>Atividade do barema</th>
+                <th class="centro">Quantidade</th>
+                <th class="centro">Vale</th>
+                <th class="centro">Remover</th>
+            </tr>
+        </thead>
+        <tbody id="tabelacertificados"></tbody>
+    </table>
+
+    <h2>Barema</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Atividade</th>
+                <th>Convertidas</th>
+                <th>Limite</th>
+                <th>Válidas</th>
+            </tr>
+        </thead>
+        <tbody id="tabelabarema"></tbody>
+    </table>
+
+    <p id="mensagemfinal"></p>
+    <button id="limpar">Limpar tudo e começar de novo</button>
+</div>
+
+<footer>
+    <p>Criado por:</p>
+<a href="https://github.com/fgomesdev" target="_blank">@Felipe Gomes</a>
+</footer>
+
+   <!-- BIBLIOTECAS PRONTAS: pdf.js le PDF, mammoth le DOCX. Precisam vir ANTES do index.js -->
+   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"></script>
+   <script src="index.js"></script>
+</body>
+</html>

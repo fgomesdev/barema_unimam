@@ -1,0 +1,355 @@
+*{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: auto; /* deixa a pagina rolar quando o resultado for maior que a tela */
+}
+
+body {
+    min-height: 100vh;
+    background: #e8f5e9;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* espaco entre o cabecalho, o cartao, o resultado e o rodape */
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 500px;
+    max-width: 95%; /* em tela pequena o cartao encolhe em vez de sair da tela */
+    min-height: 0px; /* era height: agora o cartao pode crescer para caber o botao */
+    background: white;
+    border: 3px solid #263238;
+    border-radius: 20px;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+.grupo-topo {
+    margin-top: 40px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px; 
+    text-align: center; /* as duas linhas do texto ficam centralizadas */
+}
+
+#enviar {
+    margin-top: 25px;
+    padding: 10px 40px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgb(63, 110, 52);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#enviar:disabled {
+    background-color: #9e9e9e;
+    cursor: wait;
+}
+
+#status {
+    min-height: 20px;
+    margin: 10px 20px;
+    font-size: 14px;
+    text-align: center;
+}
+
+
+
+#arquivos {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+#escolher {
+    padding: 10px 25px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color:rgb(63, 110, 52);
+    border: 2px solid #263238;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#arquivos:focus-visible + #escolher {
+    outline: 3px solid rgb(63, 110, 52); /* mostra o foco para quem navega pelo teclado (Tab) */
+}
+
+/* RESULTADO */
+
+#resultado {
+    display: none; /* escondido ate clicar em ENVIAR */
+    width: 95%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 25px;
+    background: white;
+    border: 3px solid #263238;
+    border-radius: 20px;
+}
+
+#resultado h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.dica {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #b1b6bb;
+    overflow-wrap: anywhere; /* quebra nomes de arquivo muito compridos */
+}
+
+th {
+    background: #e8f5e9;
+    overflow-wrap: normal; /* os titulos nunca quebram no meio da palavra */
+}
+
+#tabelabarema td:first-child {
+    overflow-wrap: break-word; /* o nome da atividade quebra entre as palavras, nao no meio delas */
+}
+
+#tabelabarema td:not(:first-child) {
+    white-space: nowrap; /* na tabela Barema so o nome da atividade pode quebrar linha, os numeros nao */
+}
+
+th:last-child, td:last-child {
+    white-space: nowrap; /* nao quebra "100 h" em duas linhas */
+}
+
+td small {
+    display: block;
+    margin-top: 4px;
+    color: #b45309;
+}
+
+td select {
+    width: 100%;
+    max-width: 260px;
+    padding: 4px;
+}
+
+td input {
+    display: block; /* o campo fica sozinho na linha... */
+    width: 70px;
+    margin: 0 auto; /* ...e no meio da coluna */
+    padding: 4px;
+    text-align: center;
+    appearance: textfield; /* tira as setinhas do campo de numero (Firefox)... */
+}
+
+td input::-webkit-inner-spin-button {
+    display: none; /* ...e no Chrome/Edge/Safari. Elas empurravam o numero para a esquerda */
+}
+
+td span {
+    display: block; /* a unidade (hora(s), dia(s)...) vai sempre embaixo do campo */
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+.centro {
+    text-align: center; /* centraliza o titulo e o conteudo das colunas Quantidade e Vale */
+    white-space: nowrap; /* nunca quebra "100 h" em duas linhas */
+    min-width: 75px; /* garante espaco para o valor da coluna Vale */
+}
+
+.remover {
+    padding: 5px 10px;
+    font-size: 13px;
+    color: #b71c1c;
+    background: white;
+    border: 1px solid #b71c1c;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#limpar {
+    display: block;
+    margin: 15px auto 0;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: #263238;
+    background: white;
+    border: 2px solid #263238;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.cortou td {
+    background: #fff3cd; /* linha que passou do limite */
+}
+
+#mensagemfinal {
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.aprovado {
+    background: #c8e6c9;
+    color: #1b5e20;
+}
+
+.reprovado {
+    background: #ffcdd2;
+    color: #b71c1c;
+}
+
+footer {
+    width: 100%;
+    padding: 30px;
+    background-color: rgb(63, 110, 52);
+    height:90px;
+   text-align: center;
+    gap: 5px;
+    font-size: 20px;
+ color: #ffffff;
+}
+
+a{
+     color: #ffffff;
+}
+img{
+    height: 80px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* RESPONSIVIDADE: estas regras so valem quando a tela tem ate 700px de largura (celular) */
+
+@media (max-width: 700px) {
+
+    .grupo-topo {
+        margin-top: 30px;
+        gap: 40px;
+        padding: 0 15px;
+        text-align: center;
+    }
+
+    #resultado {
+        padding: 15px;
+    }
+
+    #resultado h2 {
+        font-size: 18px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+
+    #mensagemfinal {
+        font-size: 16px;
+    }
+
+    footer {
+        font-size: 16px;
+        padding: 20px;
+        height: auto;
+    }
+
+    /* A tabela "Certificados lidos" tem 5 colunas e nao cabe no celular.
+       Entao cada linha vira um cartao, de cima para baixo: nome, atividade,
+       quantidade (no meio) e, na ultima fileira, vale na esquerda e remover na direita. */
+
+    .cartoes thead {
+        display: none; /* esconde os titulos das colunas */
+    }
+
+    .cartoes, .cartoes tbody {
+        display: block;
+    }
+
+    .cartoes tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 colunas do mesmo tamanho */
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #b1b6bb;
+        border-radius: 10px;
+    }
+
+    .cartoes td {
+        display: block;
+        padding: 0;
+        border-bottom: none;
+        min-width: 0;
+    }
+
+    .cartoes td:nth-child(1) { /* nome do arquivo: ocupa as 2 colunas */
+        grid-column: 1 / 3;
+        font-weight: bold;
+    }
+
+    .cartoes td:nth-child(1) small {
+        font-weight: normal;
+    }
+
+    .cartoes td:nth-child(2) { /* atividade: ocupa as 2 colunas */
+        grid-column: 1 / 3;
+    }
+
+    .cartoes td:nth-child(3) { /* quantidade: ocupa as 2 colunas, entao o campo fica bem no meio do cartao */
+        grid-column: 1 / 3;
+    }
+
+    .cartoes td select {
+        max-width: none;
+        padding: 8px;
+    }
+
+    #resultado table:not(.cartoes) th, #tabelabarema td {
+        padding: 6px 4px; /* tabela Barema mais apertada no celular */
+        font-size: 12px;
+    }
+
+    .cartoes td:nth-child(4)::before { /* como os titulos sumiram, escreve "Vale: " antes do valor */
+        content: "Vale: ";
+        font-weight: normal;
+    }
+
+    .cartoes td:nth-child(4) { /* vale: na esquerda */
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .cartoes td:nth-child(5) { /* remover: na direita */
+        text-align: right;
+    }
+}
