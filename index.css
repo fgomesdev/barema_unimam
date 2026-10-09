@@ -37,7 +37,7 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 50px; 
+    gap: 30px; 
     text-align: center; /* as duas linhas do texto ficam centralizadas */
 }
 
@@ -61,12 +61,15 @@ section {
 #status {
     min-height: 20px;
     margin: 10px 20px;
-    font-size: 14px;
+    font-size: 20px;
     text-align: center;
 }
 
 
+#aprovacao{
+    font-size: 20px;
 
+}
 #arquivos {
     position: absolute;
     width: 1px;
