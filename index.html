@@ -15,9 +15,9 @@
     </header>
 <section>
      <div class="grupo-topo">
-<label id="aprovacao">Envie aqui os seus certificados: <br> APENAS DOCx ou PDF</label>
-<input type="file" id="arquivos" accept=".pdf,.docx" multiple>
-<label for="arquivos" id="escolher">Escolher arquivos</label>
+<label id="aprovacao">Envie aqui os seus certificados: <br> <p>DOCx, PDF, JPG OU PNG </p></label>
+<input type="file" id="arquivos" accept=".pdf,.docx, .jpg, .jpeg, .png" multiple>
+<label for="arquivos" id="escolher" >Escolher arquivos</label>
 </div>
 <button id="enviar">ENVIAR</button>
 <p id="status"></p>
@@ -66,6 +66,7 @@
    <!-- BIBLIOTECAS PRONTAS: pdf.js le PDF, mammoth le DOCX. Precisam vir ANTES do index.js -->
    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
    <script src="index.js"></script>
 </body>
 </html>
