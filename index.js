@@ -116,6 +116,8 @@ let tabelaCertificados = document.getElementById("tabelacertificados")
 let tabelaBarema = document.getElementById("tabelabarema")
 let mensagemFinal = document.getElementById("mensagemfinal")
 let botaoLimpar = document.getElementById("limpar")
+let alterartexto = document.getElementById(`aprovacao`)
+
 
 // o pdf.js precisa saber onde esta o arquivo "ajudante" dele
 if (typeof pdfjsLib != "undefined") {
@@ -134,6 +136,9 @@ function tipoDoArquivo(nome) {
     }
     if (nomeMinusculo.endsWith(".docx")) {
         return "docx"
+    }
+ if (nomeMinusculo.endsWith(".jpg") || nomeMinusculo.endsWith(".jpeg") || nomeMinusculo.endsWith(".png")) {
+        return "img"
     }
     return "outro"
 }
@@ -159,11 +164,14 @@ inputArquivos.addEventListener("change", function () {
         if (tipo == "docx") {
             icone = "📘"
         }
+         if (tipo == "img") {
+            icone = "🖼️"
+        }
 
         let item = document.createElement("li") // cria um <li> vazio
         item.textContent = icone + " " + nome
         if (tipo == "outro") {
-            item.textContent += " (não é PDF nem DOCX)"
+            item.textContent += " (formato não aceito: use PDF, DOCX, JPG ou PNG)"
         }
         listaArquivos.appendChild(item) // coloca o <li> dentro da <ul>
     }
@@ -175,7 +183,7 @@ inputArquivos.addEventListener("change", function () {
 
 async function lerPdf(arquivo) {
     let dados = await arquivo.arrayBuffer() // o conteudo "cru" do arquivo
-    // isEvalSupported: false = protecao: impede que um PDF malicioso rode codigo dentro da pagina
+    // isEvalSupported: false  // protecao: impede que um PDF malicioso rode codigo dentro da pagina
     let pdf = await pdfjsLib.getDocument({ data: dados, isEvalSupported: false }).promise
     let texto = ""
 
@@ -196,7 +204,29 @@ async function lerDocx(arquivo) {
     return resultado.value
 }
 
+let leitorOcr = null
 
+async function obterLeitorOcr() {
+    if (leitorOcr != null) {
+        return leitorOcr // ja foi criado antes, so reaproveita
+    }
+
+    leitorOcr = await Tesseract.createWorker("por", 1, {
+        logger: function (m) {
+            if (m.status == "recognizing text") {
+                avisoStatus.textContent = "Lendo imagem do certificado... " + Math.round(m.progress * 100) + "%"
+            }
+        }
+    })
+
+    return leitorOcr
+}
+
+async function lerImg(arquivo) {
+    let leitor = await obterLeitorOcr()
+    let resultado = await leitor.recognize(arquivo)
+    return resultado.data.text
+}
 // ETAPA 7 — IDENTIFICAR A ATIVIDADE DO BAREMA
 
 // deixa tudo minusculo e sem acento: "Iniciação Científica" vira "iniciacao cientifica"
@@ -297,7 +327,7 @@ function identificarAtividade(texto) {
         return participarProjetoSocial
     }
 
-    if (tem(texto, [" ead ", "a distancia", " online ", "on line"]) && tem(texto, ["curso", "disciplina"])) {
+    if (tem(texto, [" ead ", "a distancia", " online ", "on line", "on-line"]) && tem(texto, ["curso", "disciplina"])) {
         return cursosExternosEad
     }
 
@@ -396,7 +426,7 @@ botaoEnviar.addEventListener("click", async function () {
     }
 
     if (typeof pdfjsLib == "undefined" || typeof mammoth == "undefined") {
-        avisoStatus.textContent = "Não consegui carregar os leitores de PDF e DOCX. Confira a internet e recarregue a página."
+        avisoStatus.textContent = "Não consegui carregar os leitores. Confira a internet e recarregue a página."
         return
     }
 
@@ -433,8 +463,11 @@ botaoEnviar.addEventListener("click", async function () {
                 textoOriginal = await lerPdf(arquivos[i])
             } else if (tipo == "docx") {
                 textoOriginal = await lerDocx(arquivos[i])
-            } else {
-                aviso = "arquivo não é PDF nem DOCX"
+            } 
+            else if (tipo == "img") {
+                textoOriginal = await lerImg(arquivos[i])
+            }else {
+                aviso = "formato não aceito: use PDF, DOCX, JPG ou PNG"
             }
         } catch (erro) {
             aviso = "não consegui abrir este arquivo"
@@ -470,6 +503,11 @@ botaoEnviar.addEventListener("click", async function () {
 
     botaoEnviar.disabled = false
 
+    if (leitorOcr != null) {
+    await leitorOcr.terminate()
+    leitorOcr = null
+}
+
     // esvazia a escolha, para o proximo envio comecar limpo
     inputArquivos.value = ""
     listaArquivos.innerHTML = ""
@@ -500,7 +538,9 @@ botaoLimpar.addEventListener("click", function () {
 
 function mostrarCertificados() {
 
-    tabelaCertificados.innerHTML = ""
+  alterartexto.innerHTML = `Arquivo enviado! Quer adicionar outro? <br>  <br> DOCx, PDF, JPG OU PNG` 
+    
+  tabelaCertificados.innerHTML = ""
 
     for (let i = 0; i < certificados.length; i++) {
 
@@ -698,6 +738,7 @@ function calcularBarema() {
             linhaBarema("14 - Publicações (todas juntas)", publicacaoSemLimite, 100, somapublicacao)
         }
     }
+
 
     // NOTA
 
