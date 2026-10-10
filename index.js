@@ -796,11 +796,6 @@ if (tipo == "pdf") {
                 titulo = encontrarTitulo(textoOriginal)
                 horasLidas = encontrarHoras(texto)
 
-                if (atividade == null) {
-                    aviso = "não identifiquei a atividade, escolha na lista"
-                } else if (unidade(atividade) == "hora(s)" && horasLidas == 0) {
-                    aviso = "não achei as horas, digite a quantidade"
-                }
             }
         }
         if (titulo == "") {
@@ -834,6 +829,24 @@ if (tipo == "pdf") {
     calcularBarema()
 })
 
+// devolve o aviso que vale AGORA para o certificado ("" = nenhum, o problema foi resolvido)
+function avisoAtual(certificado) {
+    let atividade = certificado[1]
+    let quantidade = certificado[2]
+
+    if (atividade == null) {
+        // se o arquivo nem foi lido (formato errado, quebrado, sem texto), mostra esse motivo
+        if (certificado[4] != "") {
+            return certificado[4]
+        }
+        return "não identifiquei a atividade, escolha na lista"
+    }
+    if (quantidade == 0) {
+        return "não achei as horas, digite a quantidade"
+    }
+    return "" // atividade escolhida e quantidade preenchida: resolvido
+}
+
 // MONTA A TABELA "CERTIFICADOS LIDOS": uma linha por arquivo, com a atividade e a quantidade podendo ser corrigidas
 
 function mostrarCertificados() {
@@ -851,12 +864,19 @@ function mostrarCertificados() {
         let colunaNome = document.createElement("td")
 
         // AVISOS EM CIMA: primeiro o da leitura (atividade ou horas), depois o do nome
-        if (certificados[i][4] != "") {
-            let aviso = document.createElement("small")
-            aviso.textContent = "AVISO: " + certificados[i][4]
-            colunaNome.appendChild(aviso)
+        let aviso = document.createElement("small")
+        let atualizarAvisoLeitura = function () {
+            let texto = avisoAtual(certificados[i])
+            if (texto == "") {
+                aviso.textContent = ""
+                aviso.style.display = "none" // resolvido: some
+            } else {
+                aviso.textContent = "AVISO: " + texto
+                aviso.style.display = "" // volta ao estilo do CSS
+            }
         }
-
+        atualizarAvisoLeitura()
+        colunaNome.appendChild(aviso)
         let situacaoNome = nomeConfere(certificados[i][8], campoNomeAluno.value)
         if (situacaoNome == "nao" || situacaoNome == "naolido") {
             let avisoNome = document.createElement("small")
@@ -927,6 +947,7 @@ function mostrarCertificados() {
             certificados[i][2] = quantidadeInicial(atividade, certificados[i][3])
             campo.value = certificados[i][2]
             calcularBarema()
+             atualizarAvisoLeitura()
         })
 
         // se o usuario corrigir a quantidade
@@ -937,6 +958,7 @@ function mostrarCertificados() {
             }
             certificados[i][2] = valor
             calcularBarema()
+            atualizarAvisoLeitura()
         })
 
         // COLUNA 5: botao para remover este certificado (caso tenha enviado o arquivo errado)
