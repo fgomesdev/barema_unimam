@@ -117,15 +117,33 @@ let areaResultado = document.getElementById("resultado")
 let tabelaCertificados = document.getElementById("tabelacertificados")
 let tabelaBarema = document.getElementById("tabelabarema")
 let mensagemFinal = document.getElementById("mensagemfinal")
-let botaoLimpar = document.getElementById("limpar")
 let alterartexto = document.getElementById(`aprovacao`)
 let campoNomeAluno = document.getElementById("nomealuno")
 let botaoRelatorio = document.getElementById("baixarrelatorio")
+let cursos = document.getElementById("cursos");
 
 // o pdf.js precisa saber onde esta o arquivo "ajudante" dele
 if (typeof pdfjsLib != "undefined") {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js"
 }
+
+// LER O CURSO
+let valorcurso = 0
+cursos.addEventListener("change", function() {
+
+    let cursoSelecionado = cursos.value; 
+
+    let textoSelecionado = cursos.options[cursos.selectedIndex].text; 
+
+    if (cursoSelecionado === "sistemas-para-internet") {
+        valorcurso = 150;
+    }
+    else {
+        valorcurso = 200; // Valor padrão para os demais cursos
+    }
+
+
+});
 
 
 // ETAPA 3 E 4 — MOSTRAR OS ARQUIVOS SELECIONADOS COM O ICONE DE PDF OU DOCX
@@ -791,16 +809,6 @@ if (tipo == "pdf") {
     calcularBarema()
 })
 
-// BOTAO "LIMPAR TUDO": apaga todos os certificados enviados para comecar do zero
-botaoLimpar.addEventListener("click", function () {
-    certificados = []
-    areaResultado.style.display = "none"
-    avisoStatus.textContent = ""
-    mostrarCertificados()
-    calcularBarema()
-})
-
-
 // MONTA A TABELA "CERTIFICADOS LIDOS": uma linha por arquivo, com a atividade e a quantidade podendo ser corrigidas
 
 function mostrarCertificados() {
@@ -1170,18 +1178,24 @@ async function gerarRelatorio() {
             doc.text("Aluno(a): " + nomeAluno, 14, y)
             y += 8
         }
-
+        let cursoSelecionado = cursos.value;
+        let textoSelecionado = cursos.options[cursos.selectedIndex].text;
+        if (textoSelecionado != "") {
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Curso: " + textoSelecionado, 14, y);
+    y += 8;
+}
         // RESULTADO
-        let situacao = "Aprovado"
+        let situacao = "Documentação em validação"
         if (resultadoFinal.nota < 7) {
-            situacao = "Faltam " + formatar(200 - resultadoFinal.tempo) + " horas para a aprovação"
+            situacao = "Faltam " + formatar(valorcurso - resultadoFinal.tempo) + " horas para a aprovação"
         }
 
         doc.setFontSize(12)
         doc.setFont("helvetica", "bold")
         doc.text("Total de horas válidas: " + formatar(resultadoFinal.tempo) + " h", 14, y)
-        doc.text("Nota: " + resultadoFinal.nota.toFixed(1).replace(".", ","), 14, y + 7)
-        doc.text("Situação: " + situacao, 14, y + 14)
+        doc.text("Situação: " + situacao, 14, y + 7)
         y += 22
 
         // TABELA DO BAREMA (as mesmas linhas da tela)
@@ -1233,11 +1247,6 @@ async function gerarRelatorio() {
         if (resultadoFinal.foraDaConta > 0) {
             observacoes.push(resultadoFinal.foraDaConta + " certificado(s) ainda não entraram na conta.")
         }
-        for (let i = 0; i < certificados.length; i++) {
-            if (certificados[i][4] != "") {
-                observacoes.push(certificados[i][0] + ": " + certificados[i][4])
-            }
-        }
         if (anexos.pdf.getPageCount() > 0) {
             observacoes.push("Os certificados estão anexados nas páginas seguintes, na mesma ordem da tabela.")
         }
@@ -1270,7 +1279,7 @@ async function gerarRelatorio() {
         }
 
         let bytes = await final.save()
-        baixarBytes(bytes, "relatorio-barema.pdf")
+        baixarBytes(bytes, "barema.unimam.pdf")
 
         let incluidos = certificados.length - anexos.falhas.length
         avisoStatus.textContent = "PDF gerado com " + incluidos + " certificado(s) anexado(s)."
@@ -1348,12 +1357,17 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
     let nota = 0
     let tempo = horastotais + somapublicacao
     tempo = Number(tempo.toFixed(2))
-
+    if(valorcurso == 150)
+    {
+   nota = tempo >= 351 ? 10.00 : tempo >= 251 ? 9.00 : tempo >= 151 ?  8.00 : tempo >= 150 ?  7.00 : 0
+    }
+    else{
     nota = tempo >= 401 ? 10.00 : tempo >= 301 ? 9.00 : tempo >= 201 ?  8.00 : tempo >= 200 ?  7.00 : 0
+    }
 
-    let mensagem = `Parabéns! Você foi aprovado, você fez ${formatar(tempo)} horas extracurriculares e sua nota foi ${nota.toFixed(1).replace(".", ",")}`
+    let mensagem = `Você fez ${formatar(tempo)} horas extracurriculares. Envie o PDF para Coordenação do seu curso para Validação.`
 
-    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas. Faltam ${formatar(200 - tempo)} horas para você ser aprovado`
+    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas. Faltam ${formatar(valorcurso - tempo)} horas para você ser aprovado`
 
     if (foraDaConta > 0) {
         aprovado += ` (${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos)`
