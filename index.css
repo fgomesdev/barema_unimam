@@ -438,6 +438,7 @@ img{
         font-weight: bold;
         font-size: 14px;
     }
+
     .cartoes td:nth-child(5) { /* remover: na direita */
         text-align: right;
     }
