@@ -128,22 +128,21 @@ if (typeof pdfjsLib != "undefined") {
 }
 
 // LER O CURSO
-let valorcurso = 200
-cursos.addEventListener("change", function() {
+let valorcurso = 0
 
-    let cursoSelecionado = cursos.value; 
-
-    let textoSelecionado = cursos.options[cursos.selectedIndex].text; 
-
-    if (cursoSelecionado === "sistemas-para-internet") {
-        valorcurso = 150;
+function atualizarValorCurso() {
+    if (cursos.value === "sistemas-para-internet") {
+        valorcurso = 150
+    } else {
+        valorcurso = 200 // valor padrão para os demais cursos
     }
-    else {
-        valorcurso = 200; // Valor padrão para os demais cursos
-    }
+}
 
-
-});
+cursos.addEventListener("change", function () {
+    atualizarValorCurso()
+    calcularBarema() // refaz a conta e atualiza a mensagem na tela
+    salvarEstado() // guarda a escolha (veja o item 3)
+})
 
 
 // ETAPA 3 E 4 — MOSTRAR OS ARQUIVOS SELECIONADOS COM O ICONE DE PDF OU DOCX
@@ -569,14 +568,15 @@ function encontrarTitulo(textoOriginal) {
     return titulo
 }
 
-// nome de reserva: atividade ou nome do arquivo sem extensao
-function nomeReserva(certificado) {
-    if (certificado[1] != null) {
-        return nomeComNumero(certificado[1])
-    }
-    return certificado[0].replace(/\.[^.]+$/, "")
+// "certificado final.pdf" vira "certificado final"
+function semExtensao(nome) {
+    return nome.replace(/\.[^.]+$/, "")
 }
 
+// nome de reserva (quando o titulo esta vazio): o nome do arquivo sem a extensao
+function nomeReserva(certificado) {
+    return semExtensao(certificado[0])
+}
 // o nome que aparece: titulo (se tiver) ou o de reserva
 function nomeVisual(certificado) {
     if (certificado[6] != "") {
@@ -803,7 +803,9 @@ if (tipo == "pdf") {
                 }
             }
         }
-
+        if (titulo == "") {
+            titulo = semExtensao(nome).slice(0, 60) // 60 = o limite do campo
+        }
         let quantidade = quantidadeInicial(atividade, horasLidas)
         certificados.push([nome, atividade, quantidade, horasLidas, aviso, "", titulo, arquivos[i], textoOriginal])
         somados++
@@ -1379,7 +1381,7 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
 
     let nota = 0
     let tempo = horastotais + somapublicacao
-    tempo = Number(tempo.toFixed(2))
+    tempo = Number(tempo.toFixed(0))
     if(valorcurso == 150)
     {
    nota = tempo >= 351 ? 10.00 : tempo >= 251 ? 9.00 : tempo >= 151 ?  8.00 : tempo >= 150 ?  7.00 : 0
