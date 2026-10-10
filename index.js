@@ -128,7 +128,7 @@ if (typeof pdfjsLib != "undefined") {
 }
 
 // LER O CURSO
-let valorcurso = 0
+let valorcurso = 200
 
 function atualizarValorCurso() {
     if (cursos.value === "sistemas-para-internet") {
