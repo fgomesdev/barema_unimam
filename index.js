@@ -327,122 +327,140 @@ function tem(texto, palavras) {
 function identificarAtividade(texto) {
 
     // foi feito na faculdade ou fora?
-    // FAMAM e o nome antigo da UNIMAM: certificado que diz FAMAM (ou Maria Milza) conta como atividade da UNIMAM
+    // FAMAM e o nome antigo da UNIMAM
     let naUnimam = tem(texto, ["unimam", "famam", "maria milza"])
 
+    // OUVINTE declarado
     if (tem(texto, [" ouvinte"])) {
         return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
     }
 
-    // PUBLICACAO
-    if (tem(texto, ["publicou", "publicacao", "publicado", "publicada", " isbn ", " issn "])) {
+    // PUBLICACAO (a lista de entrada e ampla, mas cada tipo abaixo exige palavras proprias)
+    if (tem(texto, ["publicou", "publicacao", "publicado", "publicada", "publicados", "publicadas", "autoria", " isbn ", " issn ", " doi ", "anais", " revista ", " periodico ", "conselho editorial", " capitulo", " editora "])) {
 
-if (tem(texto, ["capitulo de livro", "capitulo do livro", "capitulo intitulado", "capitulo publicado", "autoria de capitulo", "coautoria de capitulo"])) {
-    return capituloLivro
-}
+        if (tem(texto, [" capitulo"])) {
+            return capituloLivro
+        }
 
-if (tem(texto, ["trabalho completo", "texto completo publicado", "trabalho publicado na integra", "artigo completo nos anais"])) {
-    if (tem(texto, ["sem conselho editorial"])) {
-        return trabalhoSemConselho
+        if (tem(texto, ["trabalho completo", "texto completo", "artigo completo", "trabalho publicado na integra", "publicado na integra", "trabalho na integra"])) {
+            if (tem(texto, ["sem conselho editorial", "sem comite editorial", "sem comissao editorial"])) {
+                return trabalhoSemConselho
+            }
+            if (tem(texto, ["conselho editorial", "comite editorial", "comissao editorial", "comite cientifico", "conselho cientifico", "avaliado por pares", "revisao por pares", "peer review"])) {
+                return trabalhoComConselho
+            }
+            return trabalhoSemConselho
+        }
+
+        if (tem(texto, ["resumo publicado", "resumo simples", "resumo expandido", "resumo nos anais", "resumo em anais", "publicacao de resumo", "resumo de trabalho", "resumo do trabalho", "resumo em evento", "resumo cientifico", "resumo academico", " resumo "])) {
+            return resumoSemEditora
+        }
+
+        if (tem(texto, ["artigo cientifico", "artigo academico", "artigo publicado", "artigo original", "artigo de revisao", "artigo em revista", "artigo em periodico", "artigo em jornal", "artigo de opiniao", "publicacao em periodico", "publicado na revista", "publicado no periodico", "publicado no jornal", "publicado em site", "publicado em blog", "texto jornalistico", "materia jornalistica", "reportagem", " resenha ", " cronica ", " poema ", " conto ", " ensaio "])) {
+            return artigoNaoEspecializado
+        }
+
+        if (tem(texto, ["revista cientifica", "revista academica", "revista especializada", "revista indexada", "periodico cientifico", "periodico academico", "publicado em revista", " qualis ", " issn "])) {
+            return revista
+        }
+
+        if (tem(texto, ["livro publicado", "publicacao de livro", "autoria de livro", "coautoria de livro", "organizacao de livro", "organizador de livro", "organizadora de livro", "obra publicada", "obra literaria", " isbn ", " livro "])) {
+            return livro
+        }
     }
 
-    if (tem(texto, ["conselho editorial", "com conselho editorial"])) {
-        return trabalhoComConselho
+    // APRESENTACAO ACADEMICA
+    if (tem(texto, ["apresentou", "apresentado", "apresentada", "apresentacao de trabalho", "apresentacao do trabalho", "apresentacao oral", "apresentacao de poster", "apresentacao de banner", "apresentacao de resumo", "apresentacao de artigo", "comunicacao oral", "comunicacao cientifica", "comunicacao coordenada", "exposicao de trabalho", "exposicao oral", "trabalho apresentado", "poster apresentado", "banner apresentado", " poster ", " banner ", "coautor", "co autor", "coautora", "co autora"])) {
+        return apresentacaoAcademica
     }
 
-    return trabalhoSemConselho
-}
-
-if (tem(texto, ["resumo publicado", "resumo simples", "resumo expandido", "resumo nos anais", "publicacao de resumo", "resumo de trabalho", "resumo em evento cientifico"])) {
-    return resumoSemEditora
-}
-
-if (tem(texto, ["artigo cientifico", "artigo academico", "artigo publicado", "artigo original", "artigo de revisao", "artigo em revista", "artigo em periodico", "publicacao em periodico", "publicado na revista", "publicado no periodico"])) {
-    return artigoNaoEspecializado
-}
-
-if (tem(texto, ["revista cientifica", "revista academica", "revista especializada", "periodico cientifico", "periodico academico", "issn"])) {
-    return revista
-}
-
-if (tem(texto, ["livro publicado", "publicacao de livro", "autoria de livro", "coautoria de livro", "obra publicada", "obra literaria", "isbn"])) {
-    return livro
-}
-
-if (tem(texto, ["resenha", "cronica", "poema", "conto", "artigo de opiniao", "texto jornalistico"])) {
-    return artigoNaoEspecializado
-}
+    // MONITORIA (com espacos, para nao pegar "monitoramento")
+    if (tem(texto, [" monitor ", " monitora ", " monitoria ", " monitorias ", " monitores ", "monitor academico", "monitor de disciplina", "monitor de ensino", "atividade de monitoria", "programa de monitoria", "bolsista de monitoria", "monitoria voluntaria", "monitoria remunerada", "monitoria academica", "monitoria de ensino", "aluno monitor", "aluna monitora"])) {
+        return monitoria
     }
 
- // APRESENTAÇÃO ACADÊMICA
-if (tem(texto, ["apresentou", "apresentado", "apresentada", "apresentacao de trabalho", "apresentacao oral", "apresentacao de poster", "apresentacao de banner", "comunicacao oral", "comunicacao cientifica", "exposicao de trabalho", "trabalho apresentado", "poster apresentado", "banner apresentado", "coautor", "co autora", "coautora", "co autor", "apresentador", "apresentadora"])) {
-    return apresentacaoAcademica
-}
-
-// MONITORIA
-if (tem(texto, ["monitor", "monitora", "monitoria", "monitores", "monitor academico", "monitor de disciplina", "monitor de ensino", "atividade de monitoria", "programa de monitoria", "bolsista de monitoria"])) {
-    return monitoria
-}
-
-// INICIAÇÃO CIENTÍFICA
-if (tem(texto, ["iniciacao cientifica", "iniciacao a docencia", "iniciacao a pesquisa", "pibic", "pibic af", "pibiti", "pibic em", "pibid", "residencia pedagogica", "projeto de pesquisa", "bolsista de pesquisa", "pesquisa cientifica", "programa de iniciacao cientifica", "pesquisador de iniciacao cientifica"])) {
-    return naUnimam ? iniciacaoCientificaUnimam : iniciacaoCientificaExterna
-}
-
-// EMPRESA JÚNIOR
-if (tem(texto, ["empresa junior", "empresa jr", "empresa junior universitaria", "empresa junior academica", "participacao em empresa junior", "membro de empresa junior", "consultoria junior"])) {
-    return empresaJunior
-}
-
-// ESTÁGIO
-if (tem(texto, ["estagio", "estagiario", "estagiaria", "estagio supervisionado", "estagio curricular", "estagio extracurricular", "estagio obrigatorio", "estagio nao obrigatorio", "concedente de estagio", "termo de compromisso de estagio"])) {
-    return estagio
-}
-
-// ORGANIZAÇÃO DE EVENTOS
-if (tem(texto, ["membro da comissao", "integrante da comissao", "participou da comissao", "comissao organizadora", "comissao organizadora do evento", "organizacao de evento", "organizacao do evento", "organizador do evento", "organizadora do evento", "organizou o evento", "organizou o seminario", "equipe organizadora", "apoio organizacional", "apoio na organizacao", "auxiliou na organizacao", "coordenacao do evento", "coordenador do evento", "coordenadora do evento", "membro da organizacao", "na organizacao do evento", "na organizacao de"])) {
-    return naUnimam ? organizarSeminarioUnimam : organizarSeminarioExterno
-}
-
-// MATERIAL TÉCNICO
-if (tem(texto, ["material tecnico", "material didatico", "material multimidia", "material instrucional", "producao de material didatico", "elaboracao de material didatico", "elaboracao de cartilha", "producao de cartilha", "cartilha educativa", "manual tecnico", "manual didatico", "guia educativo", "apostila elaborada", "recurso educacional", "objeto de aprendizagem"])) {
-    return materialTecnico
-}
-
-// VISITAS
-if (tem(texto, ["visita tecnica", "visita tematica", "visita institucional", "visita academica", "visita guiada", "trabalho de campo", "aula de campo", "atividade de campo", "saida de campo", "excursao tecnica", "visita a instituicao", "visita a empresa", "visita a laboratorio"])) {
-    return visitaUnimam
-}
-
-// PROJETOS SOCIAIS
-if (tem(texto, ["projeto social", "projeto comunitario", "acao social", "atividade social", "extensao comunitaria", "trabalho voluntario", "voluntariado", "acao comunitaria", "projeto de responsabilidade social", "intervencao social", "programa social", "projeto socioeducativo", "atividade voluntaria"])) {
-    if (tem(texto, ["elaboracao", "elaborou", "idealizacao", "idealizou", "criou o projeto", "criou projeto", "coordenou", "coordenacao", "desenvolveu o projeto", "desenvolvimento do projeto", "planejou", "planejamento do projeto"])) {
-        return elaborarProjetoSocial
+    // INICIACAO CIENTIFICA
+    if (tem(texto, ["iniciacao cientifica", "iniciacao a docencia", "iniciacao a pesquisa", "iniciacao tecnologica", "iniciacao cientifica junior", "voluntario de iniciacao", "voluntaria de iniciacao", "bolsista de iniciacao", " pibic ", "pibic af", "pibic em", " pibiti ", " pibid ", " pivic ", "residencia pedagogica", "projeto de pesquisa", "grupo de pesquisa", "bolsista de pesquisa", "pesquisa cientifica", "programa de iniciacao", " pesquisador ", " pesquisadora ", " cnpq ", " fapesb "])) {
+        return naUnimam ? iniciacaoCientificaUnimam : iniciacaoCientificaExterna
     }
-    return participarProjetoSocial
-}
 
-// CURSOS EXTERNOS EAD
-if (tem(texto, ["ead", "a distancia", "plataforma", "online", "on line", "on-line", "educacao a distancia", "ensino remoto", "curso virtual", "plataforma digital", "udemy", "coursera", "alura", "fundacao bradesco", "escola virtual", "curso em video", "videoaula", "ambiente virtual de aprendizagem"]) && tem(texto, ["curso", "disciplina", "capacitacao", "formacao", "treinamento", "certificado", "conclusao"])) {
-    return cursosExternosEad
-}
+    // EMPRESA JUNIOR
+    if (tem(texto, ["empresa junior", "empresas juniores", "empresa jr", "movimento empresa junior", "brasil junior", "membro de empresa junior", "participacao em empresa junior", "consultoria junior"])) {
+        return empresaJunior
+    }
 
-// TRANSFERÊNCIA
-if (tem(texto, ["historico escolar", "historico academico", "aproveitamento de estudos", "transferencia externa", "transferencia de curso", "transferencia entre instituicoes"])) {
-    return transferencia
-}
+    // ESTAGIO
+    if (tem(texto, ["estagio", "estagiario", "estagiaria", "termo de compromisso de estagio", "concedente", "supervisor de estagio"])) {
+        return estagio
+    }
 
-// CURSOS DE EXTENSÃO
-if (tem(texto, ["minicurso", "mini curso", "oficina", "workshop", "curso de extensao", "extensao universitaria", "curso de aperfeicoamento", "curso de capacitacao", "curso de formacao", "curso de qualificacao", "curso livre", "treinamento profissional", "aperfeicoamento profissional", "formacao complementar", "atividade de extensao", "programa de extensao"])) {
-    return naUnimam ? cursoExtensaoUnimam : cursoExtensaoExterno
-}
+    // ORGANIZACAO DE EVENTOS
+    if (tem(texto, ["membro da comissao", "integrante da comissao", "participou da comissao", "comissao organizadora", "comissao cientifica", "comissao de organizacao", "comissao executiva", "organizacao de evento", "organizacao do evento", "organizador do evento", "organizadora do evento", "organizou o evento", "organizou o seminario", "como organizador", "como organizadora", "equipe organizadora", "equipe de organizacao", "apoio organizacional", "apoio na organizacao", "apoio ao evento", "apoio logistico", "auxiliou na organizacao", "colaborou na organizacao", "colaborou com a organizacao", "atuou na organizacao", "coordenacao do evento", "coordenador do evento", "coordenadora do evento", "membro da organizacao", "na organizacao do", "na organizacao de", " staff ", "voluntario do evento", "voluntaria do evento", "colaborador do evento", "colaboradora do evento"])) {
+        return naUnimam ? organizarSeminarioUnimam : organizarSeminarioExterno
+    }
 
-// SEMINÁRIOS, CONGRESSOS E PARTICIPAÇÃO COMO OUVINTE
-if (tem(texto, ["seminario", "congresso", "simposio", "jornada academica", "jornada cientifica", "palestra", "ciclo de palestras", "encontro academico", "encontro cientifico", "semana academica", "semana de pesquisa", "semana universitaria", "forum", "conferencia", "webinar", "mesa redonda", "mesa-redonda", "evento cientifico", "evento academico", "encontro de estudantes", "congresso cientifico", "congresso academico", "colloquium", "colóquio", "participacao como ouvinte", "participante ouvinte", "ouvinte", "participacao do evento online", "evento online", "sympla"])) {
-    return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
-}
-}
+    // MATERIAL TECNICO
+    if (tem(texto, ["material tecnico", "material didatico", "material multimidia", "material instrucional", "material educativo", "material de apoio", "producao de material", "elaboracao de material", "elaboracao de cartilha", "producao de cartilha", " cartilha ", "cartilha educativa", "manual tecnico", "manual didatico", "guia educativo", " apostila ", "apostila elaborada", "recurso educacional", "objeto de aprendizagem", "producao tecnica", "produto tecnico", "folder educativo", "video educativo", "producao de video", "producao de podcast"])) {
+        return materialTecnico
+    }
 
+    // VISITAS
+    if (tem(texto, ["visita tecnica", "visita tematica", "visita institucional", "visita academica", "visita guiada", "visita monitorada", "visita pedagogica", "visita orientada", "visita a instituicao", "visita a empresa", "visita a laboratorio", "trabalho de campo", "aula de campo", "atividade de campo", "saida de campo", "estudo de campo", "estudo do meio", "excursao"])) {
+        return visitaUnimam
+    }
+
+    // PROJETOS SOCIAIS
+    if (tem(texto, ["projeto social", "projeto comunitario", "acao social", "atividade social", "extensao comunitaria", "extensao popular", "projeto de extensao", "trabalho voluntario", "voluntariado", "voluntario", "voluntaria", "atividade voluntaria", "acao voluntaria", "acao comunitaria", "acao solidaria", "campanha solidaria", "campanha de arrecadacao", "acao beneficente", "acao humanitaria", "projeto de responsabilidade social", "intervencao social", "programa social", "projeto socioeducativo", "servico comunitario", "mutirao", "acao de cidadania", " ong "])) {
+        if (tem(texto, ["elaboracao", "elaborou", "idealizacao", "idealizou", "idealizador", "idealizadora", "criou o projeto", "criou projeto", "coordenou", "coordenacao", "coordenador do projeto", "coordenadora do projeto", "autor do projeto", "autora do projeto", "responsavel pelo projeto", "desenvolveu o projeto", "desenvolvimento do projeto", "planejou", "planejamento do projeto", "executou o projeto", "execucao do projeto"])) {
+            return elaborarProjetoSocial
+        }
+        return participarProjetoSocial
+    }
+
+    // EVENTO, LIVE OU PALESTRA ONLINE: e seminario, mesmo tendo a palavra "online" (tem que vir ANTES do EAD)
+    if (tem(texto, ["evento", " live ", " lives ", "webinar", "webinario", "palestra", "seminario", "congresso", "simposio", " jornada ", " encontro ", "forum"]) && tem(texto, [" online ", "on line", "virtual", "remoto", "a distancia", "transmissao", "youtube", " zoom ", "google meet", " teams "]) && !tem(texto, ["curso em video", "videoaula", "video aula"])) {
+        return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
+    }
+
+    // EAD: plataformas conhecidas (basta o nome da plataforma)
+    if (tem(texto, ["udemy", "coursera", "alura", " edx ", "khan academy", "fundacao bradesco", "escola virtual", " evg ", " enap ", "hotmart", "rocketseat", "digital innovation one", "domestika", "linkedin learning", "netacad", "microsoft learn", "descomplica", "curso em video", "videoaula", "video aula", "videoaulas"])) {
+        return cursosExternosEad
+    }
+
+    // EAD: palavras de ensino a distancia + palavras de curso
+    if (tem(texto, [" ead ", "a distancia", " online ", "on line", "educacao a distancia", "ensino remoto", "curso virtual", "ambiente virtual", "plataforma de ensino", "plataforma de cursos", " mooc ", "modalidade virtual", "totalmente online", "aulas gravadas"]) && tem(texto, ["curso", "disciplina", "capacitacao", "formacao", "treinamento", "trilha", "modulo", "concluiu", "concluido", "aproveitamento", "carga horaria"])) {
+        return cursosExternosEad
+    }
+
+    // TRANSFERENCIA
+    if (tem(texto, ["historico escolar", "historico academico", "historico de notas", "historico de graduacao", "aproveitamento de estudos", "transferencia externa", "transferencia de curso", "transferencia entre instituicoes", "declaracao de transferencia", "disciplinas cursadas", "disciplina cursada"])) {
+        return transferencia
+    }
+
+    // CURSOS DE EXTENSAO (palavras especificas)
+    if (tem(texto, ["minicurso", "mini curso", "oficina", "workshop", "curso de extensao", "extensao universitaria", "curso de aperfeicoamento", "curso de capacitacao", "curso de formacao", "curso de qualificacao", "curso de atualizacao", "curso de curta duracao", "curso livre", "curso presencial", "curso teorico", "treinamento profissional", "aperfeicoamento profissional", "formacao complementar", "formacao continuada", "capacitacao profissional", "qualificacao profissional", "atividade de extensao", "programa de extensao"])) {
+        return naUnimam ? cursoExtensaoUnimam : cursoExtensaoExterno
+    }
+
+    // SEMINARIOS, CONGRESSOS E AFINS (participacao como ouvinte)
+    if (tem(texto, ["seminario", "congresso", "simposio", " jornada ", "palestra", "ciclo de palestras", "ciclo de debates", " encontro ", " encontros ", "semana academica", "semana de pesquisa", "semana universitaria", "semana cientifica", "semana de ", "forum", "conferencia", "webinar", "mesa redonda", "evento cientifico", "evento academico", " evento ", " eventos ", "coloquio", "aula magna", "aula inaugural", "roda de conversa", " painel ", " debate ", "convencao", "cafe cientifico", "sympla", "participante ouvinte", "participacao como ouvinte"])) {
+        return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
+    }
+
+    // ULTIMOS RECURSOS (sem palavra especifica)
+
+    // fala em curso, aula ou capacitacao: conta como curso de extensao
+    if (tem(texto, [" curso ", " cursos ", "capacitacao", "treinamento", "formacao", "aperfeicoamento", "qualificacao", " aula ", " aulas ", " modulo "])) {
+        return naUnimam ? cursoExtensaoUnimam : cursoExtensaoExterno
+    }
+
+    // so diz que participou: conta como ouvinte
+    if (tem(texto, ["participou", "participacao", "participante", "presenca", "compareceu", "frequentou"])) {
+        return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
+    }
+
+    return null
+}
 
 // ETAPA 8 — IDENTIFICAR A QUANTIDADE DE HORAS ESCRITA NO CERTIFICADO
 
@@ -763,13 +781,20 @@ botaoEnviar.addEventListener("click", async function () {
 
         // "try" tenta ler; se o arquivo estiver quebrado, cai no "catch" em vez de travar a pagina
         try {
-if (tipo == "pdf") {
-    textoOriginal = await lerPdf(arquivos[i])
+            if (tipo == "pdf") {
+                textoOriginal = await lerPdf(arquivos[i])
 
-    // PDF sem texto de verdade = escaneado (imagem): le com OCR
-    if (simplificar(textoOriginal).replace(/[^a-z0-9]/g, "").length < 40) {
-        textoOriginal = await lerPdfComOcr(arquivos[i])
-    }
+                // PDF "hibrido": a pagina e uma imagem e so um pedacinho e texto de verdade (nome, link, "Powered by TCPDF").
+                // Se tem pouco texto, le tambem por OCR e junta os dois
+                let quantasLetras = simplificar(textoOriginal).replace(/[^a-z0-9]/g, "").length
+                if (quantasLetras < 300) {
+                    try {
+                        let textoOcr = await lerPdfComOcr(arquivos[i])
+                        textoOriginal = textoOriginal + " " + textoOcr
+                    } catch (erro) {
+                        // o OCR falhou: segue so com o texto que o PDF tem
+                    }
+                }
             } else if (tipo == "docx") {
                 textoOriginal = await lerDocx(arquivos[i])
             } 
