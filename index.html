@@ -14,8 +14,12 @@
         <h1></h1>
     </header>
 <section>
+    <div class="campo-nome">
+    <label for="nomealuno">Seu nome completo (opcional, para conferir os certificados):</label>
+    <input type="text" id="nomealuno" maxlength="80" autocomplete="name" placeholder="Ex.: Maria da Silva Santos">
+</div>
      <div class="grupo-topo">
-<label id="aprovacao">Envie aqui os seus certificados: <br> <p>DOCx, PDF, JPG OU PNG </p></label>
+<label id="aprovacao">Envie aqui os seus certificados: <br> <p>DOCx, PDF, JPG, JPEG OU PNG </p></label>
 <input type="file" id="arquivos" accept=".pdf,.docx, .jpg, .jpeg, .png" multiple>
 <label for="arquivos" id="escolher" >Escolher arquivos</label>
 </div>
@@ -55,7 +59,7 @@
     </table>
 
     <p id="mensagemfinal"></p>
-    <button id="limpar">Limpar tudo e começar de novo</button>
+    <button id="baixarrelatorio">Gerar relatório (PDF)</button> 
 </div>
 
 <footer>
@@ -67,6 +71,9 @@
    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
    <script src="index.js"></script>
 </body>
 </html>
