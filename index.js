@@ -1445,7 +1445,7 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
 
     let mensagem = `Você fez ${formatar(tempo)} horas extracurriculares. Envie o PDF para Coordenação do seu curso para Validação.`
 
-    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas. Faltam ${formatar(valorcurso - tempo)} horas para você ser aprovado`
+    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas De Atividades Extracurriculares. Faltam ${formatar(valorcurso - tempo)} horas para você ser aprovado.`
 
     if (foraDaConta > 0) {
         aprovado += ` (${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos)`
