@@ -424,7 +424,7 @@ if (tem(texto, ["projeto social", "projeto comunitario", "acao social", "ativida
 }
 
 // CURSOS EXTERNOS EAD
-if (tem(texto, ["ead", "a distancia", "online", "on line", "on-line", "educacao a distancia", "ensino remoto", "curso virtual", "plataforma digital", "udemy", "coursera", "alura", "fundacao bradesco", "escola virtual", "curso em video", "videoaula", "ambiente virtual de aprendizagem"]) && tem(texto, ["curso", "disciplina", "capacitacao", "formacao", "treinamento", "certificado", "conclusao"])) {
+if (tem(texto, ["ead", "a distancia", "plataforma", "online", "on line", "on-line", "educacao a distancia", "ensino remoto", "curso virtual", "plataforma digital", "udemy", "coursera", "alura", "fundacao bradesco", "escola virtual", "curso em video", "videoaula", "ambiente virtual de aprendizagem"]) && tem(texto, ["curso", "disciplina", "capacitacao", "formacao", "treinamento", "certificado", "conclusao"])) {
     return cursosExternosEad
 }
 
@@ -439,7 +439,7 @@ if (tem(texto, ["minicurso", "mini curso", "oficina", "workshop", "curso de exte
 }
 
 // SEMINÁRIOS, CONGRESSOS E PARTICIPAÇÃO COMO OUVINTE
-if (tem(texto, ["seminario", "congresso", "simposio", "jornada academica", "jornada cientifica", "palestra", "ciclo de palestras", "encontro academico", "encontro cientifico", "semana academica", "semana de pesquisa", "semana universitaria", "forum", "conferencia", "webinar", "mesa redonda", "mesa-redonda", "evento cientifico", "evento academico", "encontro de estudantes", "congresso cientifico", "congresso academico", "colloquium", "colóquio", "participacao como ouvinte", "participante ouvinte", "ouvinte"])) {
+if (tem(texto, ["seminario", "congresso", "simposio", "jornada academica", "jornada cientifica", "palestra", "ciclo de palestras", "encontro academico", "encontro cientifico", "semana academica", "semana de pesquisa", "semana universitaria", "forum", "conferencia", "webinar", "mesa redonda", "mesa-redonda", "evento cientifico", "evento academico", "encontro de estudantes", "congresso cientifico", "congresso academico", "colloquium", "colóquio", "participacao como ouvinte", "participante ouvinte", "ouvinte", "participação do evento online", "evento online"])) {
     return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
 }
 }
