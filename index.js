@@ -20,11 +20,11 @@ let trabalhoComConselho = ["Trabalho Completo - Conselho Editorial",0, 1 / 15]; 
 let trabalhoSemConselho = ["Trabalho Completo - Sem Conselho Editorial",0, 0.1 ]; // 1 publicacao vale 10 horas
 let resumoSemEditora = ["Resumo sem Editora", 0, 0.2]; // 1 publicacao vale 5 horas
 let artigoNaoEspecializado = ["Artigo Não Especializado", 0, 1 / 3]; // 1 publicacao vale 3 horas (era 0.333, que dava 3.003)
-let transferencia = ["Aproveitamentos indeferidos", 0, 1, 100];
+let transferencia = ["Disciplina Nao Aproveitada", 0, 1, 100];
 let empresaJunior = ["Empresa Júnior", 0, 5, 60];
 let cursosExternosEad = ["Cursos Externos EAD", 0, 1, 60];
-let estagio = ["Estágio", 0, 4, 60];
-let materialTecnico = ["Material Técnico", 0, 0.1, 20]; // 1 producao vale 10 horas
+let estagio = ["Estágio Extracurricular", 0, 4, 60];
+let materialTecnico = ["Produção de Material Técnico-Didática", 0, 0.1, 20]; // 1 producao vale 10 horas
 
 // ARRAY GERAL DO BAREMA
 
