@@ -42,13 +42,37 @@ section {
 #nomealuno {
     display: block;
     width: 100%;
-    max-width: 350px;
+    max-width: 400px;
     margin: 8px auto 0;
     padding: 8px;
     font-size: 15px;
     text-align: center;
     border: 2px solid #263238;
     border-radius: 10px;
+}
+.campo-disciplina {
+    width: 100%;
+    margin-top: 25px;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.cursos {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 8px auto 0;
+    padding: 8px;
+    font-size: 15px;
+    border: 2px solid #263238;
+    border-radius: 10px;
+    text-align: center;
+    text-align-last: center; 
+}
+
+.cursos option {
+    color: #000000;
 }
 
 .grupo-topo {
