@@ -134,7 +134,7 @@ function atualizarValorCurso() {
     if (cursos.value === "sistemas-para-internet") {
         valorcurso = 150
     } else {
-        valorcurso = 200 
+        valorcurso = 200
     }
 }
 
@@ -1443,12 +1443,12 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
     nota = tempo >= 401 ? 10.00 : tempo >= 301 ? 9.00 : tempo >= 201 ?  8.00 : tempo >= 200 ?  7.00 : 0
     }
 
-    let mensagem = `Você fez ${formatar(tempo)} horas extracurriculares. Envie o PDF para Coordenação do seu curso para Validação.`
+    let mensagem = `Você fez ${formatar(tempo)} horas de Atividades Extracurriculares.\nEnvie o PDF para Coordenação do seu curso para Validação.`
 
-    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas De Atividades Extracurriculares. Faltam ${formatar(valorcurso - tempo)} horas para você ser aprovado.`
+    let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas de Atividades Extracurriculares.\nFaltam ${formatar(valorcurso - tempo)} horas para você ser aprovado.`
 
     if (foraDaConta > 0) {
-        aprovado += ` (${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos)`
+        aprovado += `\n(${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos)`
     }
 
     mensagemFinal.textContent = aprovado
