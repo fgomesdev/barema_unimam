@@ -134,7 +134,7 @@ function atualizarValorCurso() {
     if (cursos.value === "sistemas-para-internet") {
         valorcurso = 150
     } else {
-        valorcurso = 200 // valor padrão para os demais cursos
+        valorcurso = 200 
     }
 }
 
