@@ -199,7 +199,7 @@ th:last-child, td:last-child {
 
 td small {
     display: block;
-    margin: 0 0 2px;
+    margin: 0 0 0px;
     color: #ff0000;
 }
 
@@ -294,6 +294,7 @@ td span {
     font-size: 18px;
     font-weight: bold;
     text-align: center;
+    white-space: pre-line; /* NOVA: faz o \n virar quebra de linha */
 }
 
 .aprovado {
