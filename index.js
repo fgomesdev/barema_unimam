@@ -128,7 +128,7 @@ if (typeof pdfjsLib != "undefined") {
 }
 
 // LER O CURSO
-let valorcurso = 0
+let valorcurso = 200
 cursos.addEventListener("change", function() {
 
     let cursoSelecionado = cursos.value; 
