@@ -13,13 +13,13 @@ let visitaUnimam = ["Visita Tecnica UNIMAM", 0, 0.125, 40]; // 1 dia vale 8 hora
 let participarProjetoSocial = ["Participar de Projeto Social", 0, 2, 60];
 let elaborarProjetoSocial = ["Elaborar Projeto Social", 0, 1, 60];
 let apresentacaoAcademica = ["Apresentação Acadêmica", 0, 0.2, 100]; // 1 apresentacao vale 5 horas
-let livro = ["Livro", 0, 0.025,]; // 1 publicacao vale 40 horas
-let revista = ["Revista", 0, 0.025]; // 1 publicacao vale 40 horas
-let capituloLivro = ["Capítulo de Livro", 0, 0.05]; // 1 publicacao vale 20 horas
-let trabalhoComConselho = ["Trabalho Completo - Conselho Editorial",0, 1 / 15]; //  1 publicacao vale 15 horas (era 0.06667, que dava 14.99925)
-let trabalhoSemConselho = ["Trabalho Completo - Sem Conselho Editorial",0, 0.1 ]; // 1 publicacao vale 10 horas
-let resumoSemEditora = ["Resumo sem Editora", 0, 0.2]; // 1 publicacao vale 5 horas
-let artigoNaoEspecializado = ["Artigo Não Especializado", 0, 1 / 3]; // 1 publicacao vale 3 horas (era 0.333, que dava 3.003)
+let livro = ["Publicação Livro", 0, 0.025,]; // 1 publicacao vale 40 horas
+let revista = ["Publicação Revista", 0, 0.025]; // 1 publicacao vale 40 horas
+let capituloLivro = ["Publicação Capítulo de Livro", 0, 0.05]; // 1 publicacao vale 20 horas
+let trabalhoComConselho = ["Publicação Trabalho - Com Conselho Editorial",0, 1 / 15]; //  1 publicacao vale 15 horas (era 0.06667, que dava 14.99925)
+let trabalhoSemConselho = ["Publicação Trabalho - Sem Conselho Editorial",0, 0.1 ]; // 1 publicacao vale 10 horas
+let resumoSemEditora = ["Publicação Resumo sem Editora", 0, 0.2]; // 1 publicacao vale 5 horas
+let artigoNaoEspecializado = ["Publicação Artigo Não Especializado", 0, 1 / 3]; // 1 publicacao vale 3 horas (era 0.333, que dava 3.003)
 let transferencia = ["Disciplina Nao Aproveitada", 0, 1, 100];
 let empresaJunior = ["Empresa Júnior", 0, 5, 60];
 let cursosExternosEad = ["Cursos Externos EAD", 0, 1, 60];
@@ -848,30 +848,15 @@ function mostrarCertificados() {
         let linha = document.createElement("tr")
 
         // COLUNA 1: nome do arquivo (e o aviso, se tiver)
-let colunaNome = document.createElement("td")
+        let colunaNome = document.createElement("td")
 
-let campoTitulo = document.createElement("input")
-campoTitulo.type = "text"
-campoTitulo.className = "campotitulo"
-campoTitulo.maxLength = 60
-campoTitulo.value = certificados[i][6]
-campoTitulo.placeholder = nomeReserva(certificados[i])
-campoTitulo.addEventListener("input", function () {
-    certificados[i][6] = campoTitulo.value
-})
-
-let divArquivo = document.createElement("div")
-divArquivo.className = "nomearquivo"
-divArquivo.textContent = certificados[i][0]
-
-colunaNome.appendChild(campoTitulo)
-colunaNome.appendChild(divArquivo)
+        // AVISOS EM CIMA: primeiro o da leitura (atividade ou horas), depois o do nome
         if (certificados[i][4] != "") {
             let aviso = document.createElement("small")
             aviso.textContent = "AVISO: " + certificados[i][4]
             colunaNome.appendChild(aviso)
         }
-        if (nomeConfere(certificados[i][8], campoNomeAluno.value) == "nao") {
+
         let situacaoNome = nomeConfere(certificados[i][8], campoNomeAluno.value)
         if (situacaoNome == "nao" || situacaoNome == "naolido") {
             let avisoNome = document.createElement("small")
@@ -882,7 +867,28 @@ colunaNome.appendChild(divArquivo)
             }
             colunaNome.appendChild(avisoNome)
         }
-}
+
+        // TITULO EDITAVEL
+        let campoTitulo = document.createElement("input")
+        campoTitulo.type = "text"
+        campoTitulo.name = "titulo"
+        campoTitulo.autocomplete = "off"
+        campoTitulo.className = "campotitulo"
+        campoTitulo.maxLength = 60
+        campoTitulo.value = certificados[i][6]
+        campoTitulo.placeholder = nomeReserva(certificados[i])
+        campoTitulo.addEventListener("input", function () {
+            certificados[i][6] = campoTitulo.value
+            salvarEstado() // APAGUE esta linha se voce ainda nao colou o bloco do armazenamento
+        })
+        colunaNome.appendChild(campoTitulo)
+
+        // NOME DO ARQUIVO: so aparece quando e diferente do titulo (evita repetir a mesma coisa)
+        // NOME DO ARQUIVO (com a extensao): sempre aparece embaixo do titulo
+        let divArquivo = document.createElement("div")
+        divArquivo.className = "nomearquivo"
+        divArquivo.textContent = certificados[i][0]
+        colunaNome.appendChild(divArquivo)
 
         // COLUNA 2: lista para escolher a atividade
         let colunaAtividade = document.createElement("td")
