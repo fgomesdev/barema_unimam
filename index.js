@@ -439,7 +439,7 @@ if (tem(texto, ["minicurso", "mini curso", "oficina", "workshop", "curso de exte
 }
 
 // SEMINÁRIOS, CONGRESSOS E PARTICIPAÇÃO COMO OUVINTE
-if (tem(texto, ["seminario", "congresso", "simposio", "jornada academica", "jornada cientifica", "palestra", "ciclo de palestras", "encontro academico", "encontro cientifico", "semana academica", "semana de pesquisa", "semana universitaria", "forum", "conferencia", "webinar", "mesa redonda", "mesa-redonda", "evento cientifico", "evento academico", "encontro de estudantes", "congresso cientifico", "congresso academico", "colloquium", "colóquio", "participacao como ouvinte", "participante ouvinte", "ouvinte", "participação do evento online", "evento online"])) {
+if (tem(texto, ["seminario", "congresso", "simposio", "jornada academica", "jornada cientifica", "palestra", "ciclo de palestras", "encontro academico", "encontro cientifico", "semana academica", "semana de pesquisa", "semana universitaria", "forum", "conferencia", "webinar", "mesa redonda", "mesa-redonda", "evento cientifico", "evento academico", "encontro de estudantes", "congresso cientifico", "congresso academico", "colloquium", "colóquio", "participacao como ouvinte", "participante ouvinte", "ouvinte", "participacao do evento online", "evento online", "sympla"])) {
     return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
 }
 }
