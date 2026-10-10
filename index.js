@@ -103,6 +103,8 @@ function nomeComNumero(atividade) {
 // NOME DO ARQUIVO = 0 // ATIVIDADE DO BAREMA = 1 // QUANTIDADE = 2 // HORAS LIDAS NO CERTIFICADO = 3 // AVISO = 4
 
 let certificados = [];
+let resultadoFinal = null // guarda o resultado do calculo, para o relatorio em PDF
+let linhasRelatorio = [] // as linhas da tabela do barema, para o relatorio em PDF
 
 
 // ELEMENTOS DO HTML
@@ -117,7 +119,8 @@ let tabelaBarema = document.getElementById("tabelabarema")
 let mensagemFinal = document.getElementById("mensagemfinal")
 let botaoLimpar = document.getElementById("limpar")
 let alterartexto = document.getElementById(`aprovacao`)
-
+let campoNomeAluno = document.getElementById("nomealuno")
+let botaoRelatorio = document.getElementById("baixarrelatorio")
 
 // o pdf.js precisa saber onde esta o arquivo "ajudante" dele
 if (typeof pdfjsLib != "undefined") {
@@ -171,13 +174,18 @@ inputArquivos.addEventListener("change", function () {
         let item = document.createElement("li") // cria um <li> vazio
         item.textContent = icone + " " + nome
         if (tipo == "outro") {
-            item.textContent += " (formato não aceito: use PDF, DOCX, JPG ou PNG)"
+            item.textContent += " (formato não aceito: use PDF, DOCX, JPG, JPEG ou PNG)"
         }
         listaArquivos.appendChild(item) // coloca o <li> dentro da <ul>
     }
 })
 
-
+campoNomeAluno.addEventListener("input", function () {
+    if (certificados.length > 0) {
+        mostrarCertificados()
+        calcularBarema()
+    }
+})
 // LER O TEXTO DE DENTRO DOS ARQUIVOS
 // "async" e "await": ler arquivo demora, entao o await manda o codigo ESPERAR terminar antes de ir para a proxima linha
 
@@ -218,14 +226,64 @@ async function obterLeitorOcr() {
             }
         }
     })
-
+await leitorOcr.setParameters({ tessedit_pageseg_mode: "11" })
     return leitorOcr
+}
+async function prepararImagem(arquivo) {
+    let imagem = await createImageBitmap(arquivo)
+
+    // largura final entre 1800 e 2600 px
+    let escala = 1
+    if (imagem.width < 1800) {
+        escala = 1800 / imagem.width
+    } else if (imagem.width > 2600) {
+        escala = 2600 / imagem.width
+    }
+
+    let canvas = document.createElement("canvas")
+    canvas.width = Math.round(imagem.width * escala)
+    canvas.height = Math.round(imagem.height * escala)
+
+    let contexto = canvas.getContext("2d")
+    contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height)
+    return canvas
 }
 
 async function lerImg(arquivo) {
     let leitor = await obterLeitorOcr()
-    let resultado = await leitor.recognize(arquivo)
+    let imagemPronta = await prepararImagem(arquivo)
+    let resultado = await leitor.recognize(imagemPronta)
     return resultado.data.text
+}
+
+// PDF escaneado (so imagem): desenha cada pagina num canvas e le com OCR
+async function lerPdfComOcr(arquivo) {
+    let dados = await arquivo.arrayBuffer()
+    let pdf = await pdfjsLib.getDocument({ data: dados, isEvalSupported: false }).promise
+    let leitor = await obterLeitorOcr()
+    let texto = ""
+
+    let limite = Math.min(pdf.numPages, 2) // certificado quase nunca passa de 2 paginas, e cada uma leva segundos
+
+    for (let p = 1; p <= limite; p++) {
+        let pagina = await pdf.getPage(p)
+
+        // escolhe a escala para a pagina ficar com uns 2000 px de largura (entre 1x e 3x)
+        let base = pagina.getViewport({ scale: 1 })
+        let escala = Math.max(1, Math.min(3, 2000 / base.width))
+        let viewport = pagina.getViewport({ scale: escala })
+
+        let canvas = document.createElement("canvas")
+        canvas.width = Math.round(viewport.width)
+        canvas.height = Math.round(viewport.height)
+
+        // desenha a pagina do PDF no canvas
+        await pagina.render({ canvasContext: canvas.getContext("2d"), viewport: viewport }).promise
+
+        let resultado = await leitor.recognize(canvas)
+        texto += resultado.data.text + " "
+    }
+    return texto
 }
 // ETAPA 7 — IDENTIFICAR A ATIVIDADE DO BAREMA
 
@@ -300,7 +358,7 @@ function identificarAtividade(texto) {
         return naUnimam ? iniciacaoCientificaUnimam : iniciacaoCientificaExterna
     }
 
-    if (tem(texto, ["empresa junior"])) {
+    if (tem(texto, ["empresa junior" , "empresa jr" , "junior"])) {
         return empresaJunior
     }
 
@@ -327,7 +385,7 @@ function identificarAtividade(texto) {
         return participarProjetoSocial
     }
 
-    if (tem(texto, [" ead ", "a distancia", " online ", "on line", "on-line"]) && tem(texto, ["curso", "disciplina"])) {
+    if (tem(texto, [" ead ", "a distancia", " online ", "on line", "on-line", "udemy", "curso em video", "videoaula"]) && tem(texto, ["curso", "disciplina"])) {
         return cursosExternosEad
     }
 
@@ -342,11 +400,6 @@ function identificarAtividade(texto) {
     if (tem(texto, ["seminario", "congresso", "simposio", " jornada ", "palestra", " encontro ", "semana academica", "semana de ", " forum ", "conferencia", "webinar", "mesa redonda", " evento "])) {
         return naUnimam ? seminarioOuvinteUnimam : seminarioOuvinteExterno
     }
-
-    if (tem(texto, [" curso "])) {
-        return naUnimam ? cursoExtensaoUnimam : cursoExtensaoExterno
-    }
-
     return null
 }
 
@@ -380,6 +433,215 @@ function encontrarHoras(texto) {
     return 0 // nao achou
 }
 
+// ETAPA NOVA — ACHAR O TITULO DO CERTIFICADO (usa o texto ORIGINAL, com acentos e maiusculas)
+// palavras que costumam abrir o nome do evento (entram no titulo: "Curso de Python")
+const PALAVRAS_TITULO = "minicurso|curso|oficina|workshop|palestra|seminário|seminario|congresso|simpósio|simposio|jornada|semana|encontro|monitoria"
+
+// se o titulo veio TUDO EM MAIUSCULAS, deixa so a inicial de cada palavra maiuscula
+function ajustarCaixa(titulo) {
+    if (titulo != titulo.toUpperCase() || titulo == titulo.toLowerCase()) {
+        return titulo
+    }
+    let pequenas = ["de", "da", "do", "das", "dos", "e", "em", "para", "a", "o", "na", "no", "com"]
+    let palavras = titulo.toLowerCase().split(" ")
+    for (let i = 0; i < palavras.length; i++) {
+        if (i > 0 && pequenas.includes(palavras[i])) {
+            continue
+        }
+        palavras[i] = palavras[i].charAt(0).toUpperCase() + palavras[i].slice(1)
+    }
+    return palavras.join(" ")
+}
+
+function encontrarTitulo(textoOriginal) {
+
+    // junta tudo numa linha so e tira espacos repetidos
+    let texto = textoOriginal.replace(/\s+/g, " ")
+    let achou = ""
+        let plataforma = texto.match(/concluiu (?:com [êe]xito )?o (?:curso|treinamento|minicurso)(?: em videoaula| em v[ií]deo| online| ead)?\s+([^\[\(.,;]{3,60})/i)
+    if (plataforma) {
+        return ajustarCaixa(plataforma[1].trim().slice(0, 25).trim())
+    }
+
+    // 1) entre aspas: participou do evento "Semana de Tecnologia"
+    let m = texto.match(/[“"]([^”"]{8,80})[”"]/)
+    if (m) {
+        achou = m[1]
+    }
+
+    // 2) depois de "intitulado", "com o tema", "com o titulo"...
+    if (achou == "") {
+        m = texto.match(/\b(?:intitulad[oa]|denominad[oa]|com o t[ií]tulo|com o tema|tema)\b\s*[:\-]?\s*([^.;]{8,70})/i)
+        if (m) {
+            achou = m[1]
+        }
+    }
+
+    // 3) frase que comeca com curso/palestra/semana... (a palavra ENTRA no titulo)
+    //    ignora quando vem de "aluno do curso de Medicina"
+    if (achou == "") {
+        let regex = new RegExp("\\b((?:" + PALAVRAS_TITULO + ")\\b[^.;]{5,70})", "gi")
+        for (let r of texto.matchAll(regex)) {
+            let antes = texto.slice(Math.max(0, r.index - 30), r.index).toLowerCase()
+            if (/aluno|aluna|estudante|graduand|discente|matr[ií]cula/.test(antes)) {
+                continue
+            }
+            achou = r[1]
+            break
+        }
+    }
+
+    if (achou == "") {
+        return "" // nao achou titulo
+    }
+
+    let titulo = achou
+
+    // corta quando comeca outra informacao (quem realizou, periodo, data)
+    titulo = titulo.split(/\s(?:(?:realizad[oa]|promovid[oa]|ministrad[oa]|organizad[oa]|ocorrid[oa]|com carga|no per[ií]odo|nos dias|no dia|na data|pela|pelo)\b|em\s\d)/i)[0]
+
+    // corta em virgula, parentese, hifen ou data (ex.: 12/05)
+    titulo = titulo.split(/[,(]|\s-\s|\s\d{1,2}\/\d{1,2}/)[0]
+
+    // tira simbolos estranhos (comum em texto lido por imagem) e espacos repetidos
+    titulo = titulo.replace(/[^\p{L}\p{N}\s:\-\/&°ºª]/gu, " ")
+    titulo = titulo.replace(/\s+/g, " ").trim()
+
+    // tira palavras soltas no fim ("de", "da", "e"...) e simbolos no comeco
+    titulo = titulo.replace(/(\s(?:de|da|do|das|dos|e|em|com|para|a|o|na|no))+$/i, "").trim()
+    titulo = titulo.replace(/^[:\-\s]+/, "")
+
+    if (titulo.length < 5) {
+        return ""
+    }
+
+    titulo = ajustarCaixa(titulo)
+
+    // limite de 50 caracteres, sem cortar uma palavra ao meio
+    if (titulo.length > 40) {
+        titulo = titulo.slice(0, 40)
+        if (titulo.lastIndexOf(" ") > 10) {
+            titulo = titulo.slice(0, titulo.lastIndexOf(" "))
+        }
+        titulo = titulo.trim() + "..."
+    }
+    return titulo
+}
+
+// nome de reserva: atividade ou nome do arquivo sem extensao
+function nomeReserva(certificado) {
+    if (certificado[1] != null) {
+        return nomeComNumero(certificado[1])
+    }
+    return certificado[0].replace(/\.[^.]+$/, "")
+}
+
+// o nome que aparece: titulo (se tiver) ou o de reserva
+function nomeVisual(certificado) {
+    if (certificado[6] != "") {
+        return certificado[6]
+    }
+    return nomeReserva(certificado)
+}
+
+function normalizarNome(texto) {
+    return texto
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+}
+
+// devolve "vazio" (nao da para conferir), "sim" (achou) ou "nao" (nao achou)
+function distancia(a, b) {
+    let anterior = []
+    for (let j = 0; j <= b.length; j++) {
+        anterior[j] = j
+    }
+    for (let i = 1; i <= a.length; i++) {
+        let atual = [i]
+        for (let j = 1; j <= b.length; j++) {
+            let custo = 1
+            if (a[i - 1] == b[j - 1]) {
+                custo = 0
+            }
+            atual[j] = Math.min(anterior[j] + 1, atual[j - 1] + 1, anterior[j - 1] + custo)
+        }
+        anterior = atual
+    }
+    return anterior[b.length]
+}
+
+// devolve "vazio" (nao da para conferir), "sim" (achou) ou "nao" (nao achou)
+function nomeConfere(textoCertificado, nomeDigitado) {
+    let nome = normalizarNome(nomeDigitado || "")
+    let texto = normalizarNome(textoCertificado || "")
+
+    // sem nome digitado, ou certificado sem texto lido: nao tem como conferir
+    if (nome == "" || texto.length < 20) {
+        return "vazio"
+    }
+
+    // ignora "de", "da", "dos"... e letras soltas
+    let ignoradas = ["de", "da", "do", "das", "dos", "e"]
+    let partes = nome.split(" ").filter(function (p) {
+        return p.length > 1 && !ignoradas.includes(p)
+    })
+
+    if (partes.length == 0) {
+        return "vazio"
+    }
+
+    let palavrasTexto = texto.split(" ")
+    let textoColado = texto.replace(/ /g, "") // texto sem espacos, para PDF que separa as letras
+
+    let achadas = 0
+
+    for (let i = 0; i < partes.length; i++) {
+        let parte = partes[i]
+        let achou = false
+
+        // 1) a palavra inteira aparece igual
+        if (palavrasTexto.includes(parte)) {
+            achou = true
+        }
+
+        // 2) aparece com 1 letra diferente (erro comum de leitura por imagem), so palavras de 5+ letras
+        if (!achou && parte.length >= 5) {
+            for (let j = 0; j < palavrasTexto.length; j++) {
+                let palavra = palavrasTexto[j]
+                if (Math.abs(palavra.length - parte.length) <= 1 && distancia(palavra, parte) <= 1) {
+                    achou = true
+                    break
+                }
+            }
+        }
+
+        // 3) aparece no texto "colado" (PDF que quebra "MARIA" em "M A R I A" ou "JOAO" em "JO AO"), so palavras de 4+ letras
+        if (!achou && parte.length >= 4 && textoColado.includes(parte)) {
+            achou = true
+        }
+
+        if (achou) {
+            achadas++
+        }
+    }
+
+    // basta achar 2 partes do nome (ou 1, se a pessoa digitou so um nome)
+    let necessarias = Math.min(2, partes.length)
+
+    if (achadas >= necessarias) {
+        return "sim"
+    }
+
+    // o nome fica entre "certificamos que" e "concluiu/participou". Se esses dois estao colados, o nome nao foi lido
+    if (/certifica(mos)? que (concluiu|participou|completou|cursou|realizou|foi aprovad)/.test(texto)) {
+        return "naolido"
+    }
+    return "nao"
+}
 // algumas atividades nao contam por hora: contam por publicacao, apresentacao, producao ou dia
 function unidade(atividade) {
     if (publicacao.includes(atividade)) {
@@ -442,6 +704,7 @@ botaoEnviar.addEventListener("click", async function () {
         let tipo = tipoDoArquivo(nome)
         let textoOriginal = ""
         let aviso = ""
+        let titulo = ""
 
         // se um arquivo com esse nome ja foi enviado, pula ele para nao contar as horas duas vezes
         let jaEnviado = false
@@ -459,20 +722,24 @@ botaoEnviar.addEventListener("click", async function () {
 
         // "try" tenta ler; se o arquivo estiver quebrado, cai no "catch" em vez de travar a pagina
         try {
-            if (tipo == "pdf") {
-                textoOriginal = await lerPdf(arquivos[i])
+if (tipo == "pdf") {
+    textoOriginal = await lerPdf(arquivos[i])
+
+    // PDF sem texto de verdade = escaneado (imagem): le com OCR
+    if (simplificar(textoOriginal).replace(/[^a-z0-9]/g, "").length < 40) {
+        textoOriginal = await lerPdfComOcr(arquivos[i])
+    }
             } else if (tipo == "docx") {
                 textoOriginal = await lerDocx(arquivos[i])
             } 
             else if (tipo == "img") {
                 textoOriginal = await lerImg(arquivos[i])
             }else {
-                aviso = "formato não aceito: use PDF, DOCX, JPG ou PNG"
+                aviso = "formato não aceito: use PDF, DOCX, JPG, JPEG ou PNG"
             }
         } catch (erro) {
             aviso = "não consegui abrir este arquivo"
         }
-
         let texto = simplificar(textoOriginal)
         // versao so com letras e numeros, com espaco no comeco e no fim, para procurar palavras inteiras como " ead "
         let palavras = " " + texto.replace(/[^a-z0-9]+/g, " ") + " "
@@ -485,6 +752,7 @@ botaoEnviar.addEventListener("click", async function () {
                 aviso = "sem texto para ler (parece um certificado escaneado, que é uma imagem)"
             } else {
                 atividade = identificarAtividade(palavras)
+                titulo = encontrarTitulo(textoOriginal)
                 horasLidas = encontrarHoras(texto)
 
                 if (atividade == null) {
@@ -496,8 +764,7 @@ botaoEnviar.addEventListener("click", async function () {
         }
 
         let quantidade = quantidadeInicial(atividade, horasLidas)
-
-        certificados.push([nome, atividade, quantidade, horasLidas, aviso])
+        certificados.push([nome, atividade, quantidade, horasLidas, aviso, "", titulo, arquivos[i], textoOriginal])
         somados++
     }
 
@@ -538,22 +805,51 @@ botaoLimpar.addEventListener("click", function () {
 
 function mostrarCertificados() {
 
-  alterartexto.innerHTML = `Arquivo enviado! Quer adicionar outro? <br>  <br> DOCx, PDF, JPG OU PNG` 
+  alterartexto.innerHTML = `Arquivo enviado! Quer adicionar outro? <br>  <br> DOCx, PDF, JPG, JPEG OU PNG` 
     
   tabelaCertificados.innerHTML = ""
+
 
     for (let i = 0; i < certificados.length; i++) {
 
         let linha = document.createElement("tr")
 
         // COLUNA 1: nome do arquivo (e o aviso, se tiver)
-        let colunaNome = document.createElement("td")
-        colunaNome.textContent = certificados[i][0]
+let colunaNome = document.createElement("td")
+
+let campoTitulo = document.createElement("input")
+campoTitulo.type = "text"
+campoTitulo.className = "campotitulo"
+campoTitulo.maxLength = 60
+campoTitulo.value = certificados[i][6]
+campoTitulo.placeholder = nomeReserva(certificados[i])
+campoTitulo.addEventListener("input", function () {
+    certificados[i][6] = campoTitulo.value
+})
+
+let divArquivo = document.createElement("div")
+divArquivo.className = "nomearquivo"
+divArquivo.textContent = certificados[i][0]
+
+colunaNome.appendChild(campoTitulo)
+colunaNome.appendChild(divArquivo)
         if (certificados[i][4] != "") {
             let aviso = document.createElement("small")
-            aviso.textContent = "⚠ " + certificados[i][4]
+            aviso.textContent = "AVISO: " + certificados[i][4]
             colunaNome.appendChild(aviso)
         }
+        if (nomeConfere(certificados[i][8], campoNomeAluno.value) == "nao") {
+        let situacaoNome = nomeConfere(certificados[i][8], campoNomeAluno.value)
+        if (situacaoNome == "nao" || situacaoNome == "naolido") {
+            let avisoNome = document.createElement("small")
+            if (situacaoNome == "nao") {
+                avisoNome.textContent = "AVISO: não encontrei o nome informado neste certificado. Confira se ele é seu."
+            } else {
+                avisoNome.textContent = "AVISO: não consegui ler o nome neste certificado (letra decorativa?). Confira você mesmo."
+            }
+            colunaNome.appendChild(avisoNome)
+        }
+}
 
         // COLUNA 2: lista para escolher a atividade
         let colunaAtividade = document.createElement("td")
@@ -645,6 +941,7 @@ function linhaBarema(nome, convertidas, limite, validas) {
     if (convertidas > limite) {
         linha.className = "cortou" // passou do limite: destaca a linha
     }
+    linhasRelatorio.push(textos) // guarda a mesma linha para o relatorio
     tabelaBarema.appendChild(linha)
 }
 
@@ -682,8 +979,314 @@ function calcularBarema() {
             }
         }
     }
+    // RELATORIO EM PDF DO RESULTADO
+
+function carregarLogo() {
+    return new Promise(function (resolve) {
+        let imagem = new Image()
+        imagem.onload = function () {
+            resolve(imagem)
+        }
+        imagem.onerror = function () {
+            resolve(null)
+        }
+        imagem.src = "logo/UNIMAM.png" // o mesmo caminho do index.html
+    })
+}
+
+// transforma a foto em JPEG menor, ja na orientacao certa, para entrar no PDF
+async function imagemParaJpeg(arquivo) {
+    let imagem = await createImageBitmap(arquivo, { imageOrientation: "from-image" }) // respeita a rotacao da foto do celular
+
+    // reduz fotos grandes: no maximo 2000 px no lado maior
+    let escala = 1
+    let maior = Math.max(imagem.width, imagem.height)
+if (maior > 1600) {
+    escala = 1600 / maior
+}
+
+    let canvas = document.createElement("canvas")
+    canvas.width = Math.round(imagem.width * escala)
+    canvas.height = Math.round(imagem.height * escala)
+
+    let contexto = canvas.getContext("2d")
+    contexto.fillStyle = "#ffffff" // fundo branco (PNG transparente fica branco)
+    contexto.fillRect(0, 0, canvas.width, canvas.height)
+    contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height)
+
+    let blob = await new Promise(function (resolve) {
+        canvas.toBlob(resolve, "image/jpeg", 0.85)
+    })
+    return new Uint8Array(await blob.arrayBuffer())
+}
+
+
+// cria uma pagina A4 (deitada se o conteudo for horizontal) e calcula onde o conteudo cabe: centralizado e com margem
+function encaixarNaA4(anexos, larguraOriginal, alturaOriginal) {
+    let larguraPagina = 595.28
+    let alturaPagina = 841.89
+    if (larguraOriginal > alturaOriginal) {
+        larguraPagina = 841.89
+        alturaPagina = 595.28
+    }
+
+    let margem = 30
+    let escala = Math.min((larguraPagina - 2 * margem) / larguraOriginal, (alturaPagina - 2 * margem) / alturaOriginal)
+    let largura = larguraOriginal * escala
+    let altura = alturaOriginal * escala
+
+    return {
+        pagina: anexos.addPage([larguraPagina, alturaPagina]),
+        x: (larguraPagina - largura) / 2, // centraliza
+        y: (alturaPagina - altura) / 2,
+        largura: largura,
+        altura: altura
+    }
+}
+
+// junta todos os certificados num PDF so: cada um comeca numa pagina nova
+// devolve o PDF e a lista dos que nao conseguiram entrar
+// junta todos os certificados num PDF so: cada um comeca numa pagina A4 nova
+// devolve o PDF e a lista dos que nao conseguiram entrar
+async function montarAnexos() {
+    let anexos = await PDFLib.PDFDocument.create()
+    let falhas = []
+
+    for (let i = 0; i < certificados.length; i++) {
+
+        let nome = certificados[i][0]
+        let arquivo = certificados[i][7]
+        let tipo = tipoDoArquivo(nome)
+
+        avisoStatus.textContent = "Preparando certificado " + (i + 1) + " de " + certificados.length + "..."
+
+        try {
+            if (tipo == "pdf") {
+                let origem = await PDFLib.PDFDocument.load(await arquivo.arrayBuffer(), { ignoreEncryption: true })
+                let paginasOrigem = origem.getPages()
+
+                for (let p = 0; p < paginasOrigem.length; p++) {
+
+                    // pagina girada (raro): copia como esta, para nao sair de lado
+                    if (paginasOrigem[p].getRotation().angle % 360 != 0) {
+                        let copias = await anexos.copyPages(origem, [p])
+                        anexos.addPage(copias[0])
+                        continue
+                    }
+
+                    // desenha a pagina original dentro de uma A4, reduzindo ou ampliando para caber
+                    let embutidas = await anexos.embedPages([paginasOrigem[p]])
+                    let embutida = embutidas[0]
+                    let caixa = encaixarNaA4(anexos, embutida.width, embutida.height)
+                    caixa.pagina.drawPage(embutida, { x: caixa.x, y: caixa.y, width: caixa.largura, height: caixa.altura })
+                }
+
+            } else if (tipo == "img") {
+                let jpeg = await imagemParaJpeg(arquivo)
+                let imagem = await anexos.embedJpg(jpeg)
+                let caixa = encaixarNaA4(anexos, imagem.width, imagem.height)
+                caixa.pagina.drawImage(imagem, { x: caixa.x, y: caixa.y, width: caixa.largura, height: caixa.altura })
+
+            } else {
+                falhas.push(nome + " (Word não pode ser incluído no PDF)")
+            }
+        } catch (erro) {
+            falhas.push(nome + " (não foi possível incluir)")
+        }
+    }
+
+    return { pdf: anexos, falhas: falhas }
+}
+
+// baixa um arquivo gerado no navegador
+function baixarBytes(bytes, nomeArquivo) {
+    let blob = new Blob([bytes], { type: "application/pdf" })
+    let url = URL.createObjectURL(blob)
+    let link = document.createElement("a")
+    link.href = url
+    link.download = nomeArquivo
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(function () {
+        URL.revokeObjectURL(url)
+    }, 1000)
+}
+
+async function gerarRelatorio() {
+
+    if (certificados.length == 0 || resultadoFinal == null) {
+        avisoStatus.textContent = "Envie pelo menos um certificado antes de gerar o relatório."
+        return
+    }
+    if (typeof window.jspdf == "undefined" || typeof PDFLib == "undefined") {
+        avisoStatus.textContent = "Não consegui carregar o gerador de PDF. Confira a internet e recarregue a página."
+        return
+    }
+
+    botaoRelatorio.disabled = true // nao deixa clicar duas vezes enquanto monta
+
+    try {
+        // 1) prepara os certificados que vao depois do relatorio
+        let anexos = await montarAnexos()
+
+        // 2) monta o relatorio
+        avisoStatus.textContent = "Montando o relatório..."
+
+        let doc = new window.jspdf.jsPDF()
+        let verde = [63, 110, 52] // mesma cor dos botoes do site
+        let y = 20
+
+        // LOGO no canto direito do cabecalho (se nao carregar, segue sem ela)
+        let logo = await carregarLogo()
+        if (logo != null) {
+            try {
+                let altura = 15
+                let largura = altura * logo.naturalWidth / logo.naturalHeight // mantem a proporcao
+                if (largura > 45) { // logo muito larga: reduz para nao encostar no titulo
+                    largura = 45
+                    altura = largura * logo.naturalHeight / logo.naturalWidth
+                }
+                doc.addImage(logo, "PNG", 196 - largura, 10, largura, altura)
+            } catch (erro) {
+                // a logo nao entrou no PDF: o relatorio sai normal, so sem ela
+            }
+        }
+
+        // CABECALHO
+        doc.setFont("helvetica", "bold")
+        doc.setFontSize(18)
+        doc.text("Relatório de horas extracurriculares", 14, y)
+        y += 8
+
+        doc.setFont("helvetica", "normal")
+        doc.setFontSize(10)
+        doc.text("Gerado em " + new Date().toLocaleDateString("pt-BR"), 14, y)
+        y += 7
+
+        let nomeAluno = campoNomeAluno.value.trim()
+        if (nomeAluno != "") {
+            doc.setFontSize(12)
+            doc.text("Aluno(a): " + nomeAluno, 14, y)
+            y += 8
+        }
+
+        // RESULTADO
+        let situacao = "Aprovado"
+        if (resultadoFinal.nota < 7) {
+            situacao = "Faltam " + formatar(200 - resultadoFinal.tempo) + " horas para a aprovação"
+        }
+
+        doc.setFontSize(12)
+        doc.setFont("helvetica", "bold")
+        doc.text("Total de horas válidas: " + formatar(resultadoFinal.tempo) + " h", 14, y)
+        doc.text("Nota: " + resultadoFinal.nota.toFixed(1).replace(".", ","), 14, y + 7)
+        doc.text("Situação: " + situacao, 14, y + 14)
+        y += 22
+
+        // TABELA DO BAREMA (as mesmas linhas da tela)
+        doc.setFontSize(13)
+        doc.text("Barema", 14, y)
+        doc.autoTable({
+            startY: y + 3,
+            head: [["Atividade", "Convertidas", "Limite", "Válidas"]],
+            body: linhasRelatorio,
+            headStyles: { fillColor: verde },
+            styles: { fontSize: 10 }
+        })
+        y = doc.lastAutoTable.finalY + 10
+
+        // TABELA DOS CERTIFICADOS
+        let corpo = []
+        for (let i = 0; i < certificados.length; i++) {
+            let c = certificados[i]
+            let atividadeTexto = "Não identificada"
+            let quantidadeTexto = "-"
+            let vale = "-"
+
+            if (c[1] != null) {
+                atividadeTexto = nomeComNumero(c[1])
+                quantidadeTexto = formatar(c[2]) + " " + unidade(c[1])
+                vale = formatar(c[2] / c[1][2]) + " h"
+            }
+            corpo.push([nomeVisual(c), atividadeTexto, quantidadeTexto, vale])
+        }
+
+        if (y > 250) { // pouco espaco na pagina: comeca outra
+            doc.addPage()
+            y = 20
+        }
+        doc.setFontSize(13)
+        doc.setFont("helvetica", "bold")
+        doc.text("Certificados", 14, y)
+        doc.autoTable({
+            startY: y + 3,
+            head: [["Título", "Atividade", "Quantidade", "Vale"]],
+            body: corpo,
+            headStyles: { fillColor: verde },
+            styles: { fontSize: 10 }
+        })
+        y = doc.lastAutoTable.finalY + 10
+
+        // OBSERVACOES
+        let observacoes = []
+        if (resultadoFinal.foraDaConta > 0) {
+            observacoes.push(resultadoFinal.foraDaConta + " certificado(s) ainda não entraram na conta.")
+        }
+        for (let i = 0; i < certificados.length; i++) {
+            if (certificados[i][4] != "") {
+                observacoes.push(certificados[i][0] + ": " + certificados[i][4])
+            }
+        }
+        if (anexos.pdf.getPageCount() > 0) {
+            observacoes.push("Os certificados estão anexados nas páginas seguintes, na mesma ordem da tabela.")
+        }
+        for (let i = 0; i < anexos.falhas.length; i++) {
+            observacoes.push("Não incluído no PDF: " + anexos.falhas[i])
+        }
+        observacoes.push("Calculado automaticamente pelo Barema. Sujeito a conferência.")
+
+        doc.setFont("helvetica", "normal")
+        doc.setFontSize(10)
+        for (let i = 0; i < observacoes.length; i++) {
+            let linhas = doc.splitTextToSize("- " + observacoes[i], 180) // quebra o texto comprido
+            if (y + linhas.length * 5 > 285) {
+                doc.addPage()
+                y = 20
+            }
+            doc.text(linhas, 14, y)
+            y += linhas.length * 5 + 2
+        }
+
+        // 3) junta o relatorio com os certificados e baixa
+        avisoStatus.textContent = "Juntando os certificados ao relatório..."
+
+        let final = await PDFLib.PDFDocument.load(doc.output("arraybuffer"))
+        if (anexos.pdf.getPageCount() > 0) {
+            let paginas = await final.copyPages(anexos.pdf, anexos.pdf.getPageIndices())
+            for (let p = 0; p < paginas.length; p++) {
+                final.addPage(paginas[p])
+            }
+        }
+
+        let bytes = await final.save()
+        baixarBytes(bytes, "relatorio-barema.pdf")
+
+        let incluidos = certificados.length - anexos.falhas.length
+        avisoStatus.textContent = "PDF gerado com " + incluidos + " certificado(s) anexado(s)."
+
+    } catch (erro) {
+        console.error(erro)
+        avisoStatus.textContent = "Não consegui gerar o PDF. Abra o Console (F12) para ver o motivo."
+    } finally {
+        botaoRelatorio.disabled = false
+    }
+}
+
+botaoRelatorio.addEventListener("click", gerarRelatorio)
 
     tabelaBarema.innerHTML = ""
+    linhasRelatorio = []
 
     // PUBLICACOES
 
@@ -753,9 +1356,10 @@ function calcularBarema() {
     let aprovado = nota >=7 ? mensagem : `Você fez ${formatar(tempo)} horas. Faltam ${formatar(200 - tempo)} horas para você ser aprovado`
 
     if (foraDaConta > 0) {
-        aprovado += ` (${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos ⚠)`
+        aprovado += ` (${foraDaConta} certificado(s) ainda não entraram na conta, confira os avisos)`
     }
 
     mensagemFinal.textContent = aprovado
     mensagemFinal.className = nota >= 7 ? "aprovado" : "reprovado"
+    resultadoFinal = { tempo: tempo, nota: nota, foraDaConta: foraDaConta }
 }
