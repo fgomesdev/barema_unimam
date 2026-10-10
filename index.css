@@ -199,8 +199,8 @@ th:last-child, td:last-child {
 
 td small {
     display: block;
-    margin-top: 4px;
-    color: #b45309;
+    margin: 0 0 2px;
+    color: #ff0000;
 }
 
 td select {
