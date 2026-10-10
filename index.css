@@ -23,13 +23,32 @@ section {
     flex-direction: column;
     align-items: center;
     width: 500px;
-    max-width: 95%; /* em tela pequena o cartao encolhe em vez de sair da tela */
+    max-width: 100%; /* em tela pequena o cartao encolhe em vez de sair da tela */
     min-height: 0px; /* era height: agora o cartao pode crescer para caber o botao */
     background: white;
     border: 3px solid #263238;
     border-radius: 20px;
     margin: auto;
     box-sizing: border-box;
+}
+
+.campo-nome {
+    width: 100%;
+    margin-top: 25px;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 14px;
+}
+#nomealuno {
+    display: block;
+    width: 100%;
+    max-width: 350px;
+    margin: 8px auto 0;
+    padding: 8px;
+    font-size: 15px;
+    text-align: center;
+    border: 2px solid #263238;
+    border-radius: 10px;
 }
 
 .grupo-topo {
@@ -114,6 +133,7 @@ section {
     margin-bottom: 12px;
 }
 
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -156,7 +176,15 @@ td select {
     max-width: 260px;
     padding: 4px;
 }
+.titulo {
+    font-weight: bold;
+}
 
+.nomearquivo {
+    font-size: 12px;
+    color: #607d8b;
+    margin-top: 2px;
+}
 td input {
     display: block; /* o campo fica sozinho na linha... */
     width: 70px;
@@ -166,14 +194,33 @@ td input {
     appearance: textfield; /* tira as setinhas do campo de numero (Firefox)... */
 }
 
+.campotitulo {
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+    border: 1px solid #b1b6bb;
+    border-radius: 6px;
+}
 td input::-webkit-inner-spin-button {
     display: none; /* ...e no Chrome/Edge/Safari. Elas empurravam o numero para a esquerda */
 }
 
+td select {
+    width: 100%;
+    max-width: 260px;
+    padding: 4px;
+}
 td span {
     display: block; /* a unidade (hora(s), dia(s)...) vai sempre embaixo do campo */
     margin-top: 3px;
     font-size: 12px;
+}
+
+#baixarrelatorio:disabled {
+    opacity: 0.5;
+    cursor: wait;
 }
 
 .centro {
@@ -191,18 +238,19 @@ td span {
     border-radius: 8px;
     cursor: pointer;
 }
-
-#limpar {
+#baixarrelatorio {
     display: block;
+    background:  rgb(63, 110, 52);
     margin: 15px auto 0;
     padding: 8px 20px;
-    font-size: 14px;
-    color: #263238;
-    background: white;
+    font-size: 20px;
+    color: white;
     border: 2px solid #263238;
     border-radius: 10px;
     cursor: pointer;
 }
+
+
 
 .cortou td {
     background: #fff3cd; /* linha que passou do limite */
@@ -234,6 +282,7 @@ footer {
    text-align: center;
     gap: 5px;
     font-size: 20px;
+  width: 100%;
  color: #ffffff;
 }
 
@@ -241,14 +290,20 @@ a{
      color: #ffffff;
 }
 img{
-    height: 80px;
+    height: 100px;
   display: block;
+ margin-bottom: 30px;
   margin-left: auto;
   margin-right: auto;
 }
 
 /* RESPONSIVIDADE: estas regras so valem quando a tela tem ate 700px de largura (celular) */
-
+@media (min-width: 701px) {
+    td select {
+        position: relative;
+        top: -8px; /* sobe o select 4px so no computador; aumente o numero para subir mais */
+    }
+}
 @media (max-width: 700px) {
 
     .grupo-topo {
