@@ -463,7 +463,6 @@ function identificarAtividade(texto) {
 }
 
 // ETAPA 8 — IDENTIFICAR A QUANTIDADE DE HORAS ESCRITA NO CERTIFICADO
-
 // O que esta entre / / e um "molde" de texto (expressao regular):
 //   \d+  = um numero            \s*  = espacos (ou nenhum)
 //   (\([^)]*\))?  = um trecho entre parenteses que pode existir ou nao, como "(quarenta)"
