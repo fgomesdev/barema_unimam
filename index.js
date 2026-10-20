@@ -1517,3 +1517,14 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
     mensagemFinal.className = nota >= 7 ? "aprovado" : "reprovado"
     resultadoFinal = { tempo: tempo, nota: nota, foraDaConta: foraDaConta }
 }
+
+  function atualizarData() {
+    const opções = { weekday: 'long', day: 'numeric', month: 'long' };
+    const dataHoje = new Date().toLocaleDateString('pt-BR', opções);
+    
+    const dataFormatada = dataHoje.charAt(0).toUpperCase() + dataHoje.slice(1);
+    
+    document.getElementById('data-elemento').textContent = `📅 ${dataFormatada}`;
+  }
+
+  atualizarData();
