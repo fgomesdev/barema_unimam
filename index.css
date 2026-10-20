@@ -726,7 +726,7 @@ footer {
     order: -2; 
   }
 
-}
+
     section {
         grid-column: auto;
 
@@ -875,5 +875,5 @@ footer a {
   width: auto !important;
 }
 
-
+}
 
