@@ -103,6 +103,7 @@ function nomeComNumero(atividade) {
 // NOME DO ARQUIVO = 0 // ATIVIDADE DO BAREMA = 1 // QUANTIDADE = 2 // HORAS LIDAS NO CERTIFICADO = 3 // AVISO = 4
 
 let certificados = [];
+let arquivosSelecionados = []
 let resultadoFinal = null // guarda o resultado do calculo, para o relatorio em PDF
 let linhasRelatorio = [] // as linhas da tabela do barema, para o relatorio em PDF
 
@@ -163,18 +164,13 @@ function tipoDoArquivo(nome) {
     return "outro"
 }
 
-// "change" acontece toda vez que o usuario escolhe arquivos
-inputArquivos.addEventListener("change", function () {
-
-    // limpa so a lista de nomes. O resultado dos envios anteriores continua na tela
+// desenha a lista dos arquivos escolhidos (ainda nao enviados), cada um com um botao para tirar
+function mostrarArquivosSelecionados() {
     listaArquivos.innerHTML = ""
-    avisoStatus.textContent = ""
 
-    let arquivos = inputArquivos.files
+    for (let i = 0; i < arquivosSelecionados.length; i++) {
 
-    for (let i = 0; i < arquivos.length; i++) {
-
-        let nome = arquivos[i].name
+        let nome = arquivosSelecionados[i].name
         let tipo = tipoDoArquivo(nome)
         let icone = "❌"
 
@@ -184,18 +180,70 @@ inputArquivos.addEventListener("change", function () {
         if (tipo == "docx") {
             icone = "📘"
         }
-         if (tipo == "img") {
+        if (tipo == "img") {
             icone = "🖼️"
         }
 
-        let item = document.createElement("li") // cria um <li> vazio
-        item.textContent = icone + " " + nome
+        let item = document.createElement("li")
+
+        let textoItem = document.createElement("span")
+        textoItem.textContent = icone + " " + nome
         if (tipo == "outro") {
-            item.textContent += " (formato não aceito: use PDF, DOCX, JPG, JPEG ou PNG)"
+            textoItem.textContent += " (formato não aceito: use PDF, DOCX, JPG, JPEG ou PNG)"
         }
-        listaArquivos.appendChild(item) // coloca o <li> dentro da <ul>
+
+        let botaoTirar = document.createElement("button")
+        botaoTirar.type = "button"
+        botaoTirar.className = "tirar-arquivo"
+        botaoTirar.textContent = "✕"
+        botaoTirar.title = "Tirar da lista"
+        botaoTirar.addEventListener("click", function () {
+            arquivosSelecionados.splice(i, 1) // tira este arquivo da lista
+            mostrarArquivosSelecionados()
+        })
+
+        item.appendChild(textoItem)
+        item.appendChild(botaoTirar)
+        listaArquivos.appendChild(item)
+    }
+}
+
+// "change" acontece toda vez que o usuario escolhe arquivos: eles sao SOMADOS aos que ja estavam na lista
+inputArquivos.addEventListener("change", function () {
+
+    let escolhidos = Array.from(inputArquivos.files) // copia, porque o campo e esvaziado logo abaixo
+    let repetidosNaLista = 0
+
+    for (let i = 0; i < escolhidos.length; i++) {
+
+        // se o mesmo arquivo ja esta na lista (mesmo nome, tamanho e data), nao adiciona de novo
+        let jaEstaNaLista = false
+        for (let j = 0; j < arquivosSelecionados.length; j++) {
+            let existente = arquivosSelecionados[j]
+            if (existente.name == escolhidos[i].name && existente.size == escolhidos[i].size && existente.lastModified == escolhidos[i].lastModified) {
+                jaEstaNaLista = true
+            }
+        }
+
+        if (jaEstaNaLista) {
+            repetidosNaLista++
+        } else {
+            arquivosSelecionados.push(escolhidos[i])
+        }
+    }
+
+    // esvazia o campo: a lista de verdade fica em arquivosSelecionados.
+    // Sem isso, escolher o mesmo arquivo de novo (depois de tirar) nao dispararia o "change"
+    inputArquivos.value = ""
+
+    mostrarArquivosSelecionados()
+
+    avisoStatus.textContent = arquivosSelecionados.length + " arquivo(s) na lista. Escolha mais ou clique em ENVIAR."
+    if (repetidosNaLista > 0) {
+        avisoStatus.textContent += " " + repetidosNaLista + " já estava(m) na lista e não foi(ram) adicionado(s) de novo."
     }
 })
+
 
 campoNomeAluno.addEventListener("input", function () {
     if (certificados.length > 0) {
@@ -463,6 +511,7 @@ function identificarAtividade(texto) {
 }
 
 // ETAPA 8 — IDENTIFICAR A QUANTIDADE DE HORAS ESCRITA NO CERTIFICADO
+
 // O que esta entre / / e um "molde" de texto (expressao regular):
 //   \d+  = um numero            \s*  = espacos (ou nenhum)
 //   (\([^)]*\))?  = um trecho entre parenteses que pode existir ou nao, como "(quarenta)"
@@ -737,8 +786,20 @@ function formatar(numero) {
 // ETAPA 5 — BOTAO DE ENVIO: SO AQUI COMECA O PROCESSAMENTO
 
 botaoEnviar.addEventListener("click", async function () {
+    
+  if (window.innerWidth < 768) {
+    const elemento = document.querySelector('.como-funciona'); 
+    if (elemento) {
+      elemento.style.setProperty('display', 'none', 'important');
+    }
+      const precisaAjuda = document.querySelector('.precisa-ajuda');
+          if (resultado && precisaAjuda) {
+      resultado.insertAdjacentElement('afterend', precisaAjuda);
+    }
 
-    let arquivos = inputArquivos.files
+  }
+
+let arquivos = arquivosSelecionados.slice()
 
     if (arquivos.length == 0) {
         avisoStatus.textContent = "Escolha pelo menos um arquivo antes de enviar."
@@ -837,9 +898,11 @@ botaoEnviar.addEventListener("click", async function () {
     leitorOcr = null
 }
 
-    // esvazia a escolha, para o proximo envio comecar limpo
-    inputArquivos.value = ""
-    listaArquivos.innerHTML = ""
+    // tira da lista so os arquivos que acabaram de ser enviados (se a pessoa escolheu outros durante a leitura, eles ficam)
+    arquivosSelecionados = arquivosSelecionados.filter(function (arquivo) {
+        return !arquivos.includes(arquivo)
+    })
+    mostrarArquivosSelecionados()
 
     avisoStatus.textContent = `${somados} arquivo(s) somado(s). Total enviado: ${certificados.length}.`
     if (repetidos > 0) {
@@ -1424,7 +1487,7 @@ botaoRelatorio.addEventListener("click", gerarRelatorio)
 
         // a publicacao e o item 14, entao a linha dela entra logo depois do item 13 (posicao 12)
         if (i == 12 && publicacaoSemLimite > 0) {
-            linhaBarema("14 - Publicações (todas juntas)", publicacaoSemLimite, 100, somapublicacao)
+            linhaBarema("14 - Publicações", publicacaoSemLimite, 100, somapublicacao)
         }
     }
 
