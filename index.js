@@ -787,17 +787,25 @@ function formatar(numero) {
 
 botaoEnviar.addEventListener("click", async function () {
     
-  if (window.innerWidth < 768) {
+if (window.innerWidth < 768) {
+    // 1. Esconde o elemento .como-funciona
     const elemento = document.querySelector('.como-funciona'); 
     if (elemento) {
-      elemento.style.setProperty('display', 'none', 'important');
-    }
-      const precisaAjuda = document.querySelector('.precisa-ajuda');
-          if (resultado && precisaAjuda) {
-      resultado.insertAdjacentElement('afterend', precisaAjuda);
+        elemento.style.setProperty('display', 'none', 'important');
     }
 
-  }
+    // 2. Seleciona o .precisa-ajuda e altera o max-width para 94%
+    const precisaAjuda = document.querySelector('.precisa-ajuda');
+    if (precisaAjuda) {
+        precisaAjuda.style.setProperty('max-width', '94%', 'important');
+    }
+
+    // 3. Move o elemento para depois do resultado
+    if (resultado && precisaAjuda) {
+        resultado.insertAdjacentElement('afterend', precisaAjuda);
+    }
+}
+
 
 let arquivos = arquivosSelecionados.slice()
 
