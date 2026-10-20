@@ -1,171 +1,475 @@
-*{
-    font-family: Arial, Helvetica, sans-serif;
+* {
     margin: 0;
     padding: 0;
-    overflow: hidden;
     box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 html {
-    overflow-y: auto; /* deixa a pagina rolar quando o resultado for maior que a tela */
+    overflow-y: auto;
 }
 
 body {
     min-height: 100vh;
-    background: #e8f5e9;
+    background: #f1f4f2;
+    color: #263238;
+}
+
+header {
+    width: 100%;
+    height: 88px;
+    background: #ffffff;
+    border-top: 3px solid #263238;
+    border-bottom: 1px solid #e1e5e3;
+
     display: flex;
-    flex-direction: column;
-    gap: 20px; /* espaco entre o cabecalho, o cartao, o resultado e o rodape */
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+}
+
+.logo-header {
+    height: 55px;
+    width: auto;
+    margin: 0;
+}
+
+.acesso-equipe {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #087c4a;
+    border: 1px solid #dfe4e1;
+    border-radius: 12px;
+    color: #fafbfc;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.acesso-equipe:hover {
+    background:  #263238;
+}
+
+.layout-principal {
+    width: 100%;
+    max-width: 1200px;
+    margin: 30px auto 55px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 2.2fr)
+        minmax(220px, 0.9fr)
+        minmax(220px, 0.9fr);
+    gap: 22px;
+
+    align-items: stretch;
 }
 
 section {
+    width: 100%;
+    min-height: 540px;
+    margin: 0;
+    padding: 34px 30px 25px;
+    background: #ffffff;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 8px 25px rgba(30, 50, 40, 0.06);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 500px;
-    max-width: 100%; /* em tela pequena o cartao encolhe em vez de sair da tela */
-    min-height: 0px; /* era height: agora o cartao pode crescer para caber o botao */
-    background: white;
-    border: 3px solid #263238;
-    border-radius: 20px;
-    margin: auto;
-    box-sizing: border-box;
 }
 
-.campo-nome {
-    width: 100%;
-    margin-top: 25px;
-    padding: 0 20px;
-    text-align: center;
+.data-atual {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #68736e;
     font-size: 14px;
+    font-weight: bold;
+
+    margin-bottom: 25px;
 }
-#nomealuno {
-    display: block;
-    width: 100%;
-    max-width: 400px;
-    margin: 8px auto 0;
-    padding: 8px;
-    font-size: 15px;
-    text-align: center;
-    border: 2px solid #263238;
-    border-radius: 10px;
+
+.saudacao {
+    color: #087c4a;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 25px;
 }
+
+
+.etiqueta {
+    color: #087c4a;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+.titulo-principal {
+    color: #263238;
+    font-size: 27px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+}
+
+.descricao-principal {
+    color: #7b8580;
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+.campo-nome,
 .campo-disciplina {
     width: 100%;
-    margin-top: 25px;
-    padding: 0 20px;
-    text-align: center;
-    font-size: 14px;
+    margin: 0 0 17px;
+    padding: 0;
+
+    text-align: left;
+}
+
+.campo-nome label,
+.campo-disciplina label {
+    display: block;
+    color: #65706b;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+#nomealuno,
+.cursos {
+    display: block;
+
+    width: 100%;
+    max-width: none;
+
+    height: 53px;
+
+    margin: 0;
+
+    padding: 0 16px;
+
+    background: #f3f5f4;
+
+    border: 1px solid #e8ecea;
+    border-radius: 12px;
+
+    color: #263238;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    outline: none;
+}
+
+#nomealuno:focus,
+.cursos:focus {
+    border-color: #0a8f55;
+    box-shadow: 0 0 0 3px rgba(10, 143, 85, 0.10);
 }
 
 .cursos {
-    display: block;
-    width: 100%;
-    max-width: 400px;
-    margin: 8px auto 0;
-    padding: 8px;
-    font-size: 15px;
-    border: 2px solid #263238;
-    border-radius: 10px;
-    text-align: center;
-    text-align-last: center; 
+    cursor: pointer;
 }
 
 .cursos option {
     color: #000000;
 }
 
+/* =========================
+   ÁREA DE ARQUIVOS
+========================= */
+
 .grupo-topo {
-    margin-top: 40px; 
+    width: 100%;
+
+    margin-top: 5px;
+
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 30px; 
-    text-align: center; /* as duas linhas do texto ficam centralizadas */
+
+    align-items: stretch;
+
+    gap: 10px;
+
+    text-align: left;
 }
 
-#enviar {
-    margin-top: 25px;
-    padding: 10px 40px;
-    font-size: 16px;
+#aprovacao {
+    display: block;
+
+    color: #263238;
+
+    font-size: 15px;
     font-weight: bold;
-    color: #ffffff;
-    background-color: rgb(63, 110, 52);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
-#baremaunimam{
-    padding: 10px 40px;
-    font-size: 16px;
-    font-weight: bold;
-    color: rgb(63, 110, 52);
-    background-color: rgb(247, 248, 247);
-    border-radius: 10px;
-    cursor: pointer;
-    text-align: center;
-}
-#enviar:disabled {
-    background-color: #9e9e9e;
-    cursor: wait;
+
+    line-height: 1.4;
 }
 
-#status {
-    min-height: 20px;
-    margin: 10px 20px;
-    font-size: 20px;
-    text-align: center;
+#aprovacao p {
+    color: #7b8580;
+
+    font-size: 13px;
+    font-weight: normal;
+
+    margin-top: 4px;
 }
 
+/* input real escondido */
 
-#aprovacao{
-    font-size: 20px;
-
-}
 #arquivos {
     position: absolute;
+
     width: 1px;
     height: 1px;
+
     opacity: 0;
 }
 
 #escolher {
-    padding: 10px 25px;
-    font-size: 16px;
-    color: #ffffff;
-    background-color:rgb(63, 110, 52);
-    border: 2px solid #263238;
-    border-radius: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: #edf7f1;
+    border: 2px dashed #70b995;
+    border-radius: 12px;
+    color: #087c4a;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+#escolher:hover {
+    background: #e1f2e9;
 }
 
 #arquivos:focus-visible + #escolher {
-    outline: 3px solid rgb(63, 110, 52); /* mostra o foco para quem navega pelo teclado (Tab) */
+    outline: 3px solid rgba(10, 143, 85, 0.3);
+}
+#listaarquivos {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;           
+    margin: 12px 0;     
 }
 
-/* RESULTADO */
+#listaarquivos:empty {
+    display: none;       
+}
 
+#listaarquivos li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    overflow-wrap: anywhere;
+    padding: 8px 12px;
+    background: #f3f5f4;
+    border-radius: 10px;
+}
+
+.tirar-arquivo {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    font-size: 14px;
+    color: #b71c1c;
+    background: #ffffff;
+    border: 1px solid #b71c1c;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#listaarquivos {
+    width: 100%;
+    margin: 5px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+}
+
+#enviar {
+    width: 100%;
+    height: 56px;
+    margin-top: 10px;
+    padding: 0 25px;
+    background: #079b55;
+    border: none;
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 7px 18px rgba(7, 155, 85, 0.20);
+    transition: 0.2s;
+}
+
+#enviar:hover {
+    background: #078b4d;
+    transform: translateY(-1px);
+}
+
+#enviar:disabled {
+    background: #9e9e9e;
+    cursor: wait;
+    box-shadow: none;
+}
+
+#status {
+    min-height: 20px;
+    margin: 10px 0 0;
+    color: #68736e;
+    font-size: 13px;
+    text-align: center;
+}
+
+.como-funciona {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 25px;
+    padding: 32px 25px;
+    box-shadow: 0 8px 25px rgba(30, 50, 40, 0.06);
+}
+
+.como-funciona .mini-titulo {
+    color: #087c4a;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.4px;
+    margin-bottom: 10px;
+}
+
+.como-funciona h2 {
+    color: #263238;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 28px;
+}
+
+.etapa {
+    display: flex;
+   position: relative;
+    gap: 14px;
+    margin-bottom: 27px;
+}
+
+.etapa:last-child {
+    margin-bottom: 0;
+}
+
+.numero-etapa {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #079b55;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.etapa-conteudo strong {
+    display: block;
+   color: #263238;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.etapa-conteudo p {
+    color: #7b8580;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.precisa-ajuda {
+    width: 100%;
+    background: #10251d;
+    border-radius: 25px;
+    padding: 30px 24px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.icone-ajuda {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #253a32;
+    border-radius: 50%;
+    font-size: 20px;
+    margin-bottom: 42px;
+}
+
+.precisa-ajuda .mini-titulo {
+    color: #6bc39a;
+
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.4px;
+    margin-bottom: 12px;
+}
+
+.precisa-ajuda h2 {
+    color: white;
+    font-size: 25px;
+    line-height: 1.15;
+    margin-bottom: 14px;
+}
+
+.precisa-ajuda p {
+    color: #b8c4bf;
+    font-size: 13px;
+    line-height: 1.65;
+    margin-bottom: 25px;
+}
+
+.link-ajuda {
+    color: #75d0a2;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    margin-top: auto;
+}
+
+.link-ajuda:hover {
+    text-decoration: underline;
+}
 #resultado {
-    display: none; /* escondido ate clicar em ENVIAR */
-    width: 95%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 25px;
-    background: white;
-    border: 3px solid #263238;
-    border-radius: 20px;
+    display: none;
+    width: calc(100% - 40px);
+    max-width: 1160px;
+    margin: 0 auto 50px;
+    padding: 30px;
+    background: #ffffff;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 8px 25px rgba(30, 50, 40, 0.06);
 }
 
 #resultado h2 {
-    font-size: 20px;
+    color: #263238;
+
+    font-size: 21px;
+
     margin-bottom: 8px;
 }
 
 .dica {
-    font-size: 14px;
-    margin-bottom: 12px;
-}
+    color: #7b8580;
 
+    font-size: 14px;
+
+    margin-bottom: 20px;
+}
 table {
     width: 100%;
     border-collapse: collapse;
@@ -174,28 +478,29 @@ table {
 }
 
 th, td {
-    padding: 8px;
+    padding: 11px;
     text-align: left;
-    border-bottom: 1px solid #b1b6bb;
-    overflow-wrap: anywhere; /* quebra nomes de arquivo muito compridos */
+    border-bottom: 1px solid #e1e5e3;
 }
 
 th {
-    background: #e8f5e9;
-    overflow-wrap: normal; /* os titulos nunca quebram no meio da palavra */
+    background: #edf7f1;
+    color: #263238;
+    overflow-wrap: normal; 
 }
 
 #tabelabarema td:first-child {
-    overflow-wrap: break-word; /* o nome da atividade quebra entre as palavras, nao no meio delas */
+    overflow-wrap: break-word;
 }
 
 #tabelabarema td:not(:first-child) {
-    white-space: nowrap; /* na tabela Barema so o nome da atividade pode quebrar linha, os numeros nao */
+    white-space: nowrap; 
 }
 
 th:last-child, td:last-child {
-    white-space: nowrap; /* nao quebra "100 h" em duas linhas */
+    white-space: nowrap; 
 }
+
 
 td small {
     display: block;
@@ -207,23 +512,16 @@ td select {
     width: 100%;
     max-width: 260px;
     padding: 4px;
-}
-.titulo {
-    font-weight: bold;
+    margin-bottom: 13px;
 }
 
-.nomearquivo {
-    font-size: 12px;
-    color: #607d8b;
-    margin-top: 2px;
-}
+
 td input {
-    display: block; /* o campo fica sozinho na linha... */
+    display: block; 
     width: 70px;
-    margin: 0 auto; /* ...e no meio da coluna */
+    margin: 0 auto; 
     padding: 4px;
     text-align: center;
-    appearance: textfield; /* tira as setinhas do campo de numero (Firefox)... */
 }
 
 .campotitulo {
@@ -232,69 +530,54 @@ td input {
     text-align: left;
     font-weight: bold;
     font-size: 14px;
-    border: 1px solid #b1b6bb;
-    border-radius: 6px;
-}
-td input::-webkit-inner-spin-button {
-    display: none; /* ...e no Chrome/Edge/Safari. Elas empurravam o numero para a esquerda */
 }
 
-td select {
-    width: 100%;
-    max-width: 260px;
-    padding: 4px;
+td input::-webkit-inner-spin-button {
+    display: none;
 }
+
 td span {
-    display: block; /* a unidade (hora(s), dia(s)...) vai sempre embaixo do campo */
+    display: block;
     margin-top: 3px;
     font-size: 12px;
 }
 
-#baixarrelatorio:disabled {
-    opacity: 0.5;
-    cursor: wait;
+.centro {
+    text-align: center;
+    white-space: nowrap;
+    min-width: 75px;
 }
 
-.centro {
-    text-align: center; /* centraliza o titulo e o conteudo das colunas Quantidade e Vale */
-    white-space: nowrap; /* nunca quebra "100 h" em duas linhas */
-    min-width: 75px; /* garante espaco para o valor da coluna Vale */
+.titulo {
+    font-weight: bold;
+}
+
+.nomearquivo {
+    color: #607d8b;
+    font-size: 12px;
+    margin-top: 2px;
 }
 
 .remover {
-    padding: 5px 10px;
-    font-size: 13px;
+    padding: 6px 10px;
     color: #b71c1c;
     background: white;
     border: 1px solid #b71c1c;
     border-radius: 8px;
     cursor: pointer;
 }
-#baixarrelatorio {
-    display: block;
-    background:  rgb(63, 110, 52);
-    margin: 15px auto 0;
-    padding: 8px 20px;
-    font-size: 20px;
-    color: white;
-    border: 2px solid #263238;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-
 
 .cortou td {
-    background: #fff3cd; /* linha que passou do limite */
+    background: #fff3cd;
 }
 
 #mensagemfinal {
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 18px;
+    padding: 17px;
+    border-radius: 12px;
+    font-size: 17px;
     font-weight: bold;
     text-align: center;
-    white-space: pre-line; /* NOVA: faz o \n virar quebra de linha */
+    white-space: pre-line;
 }
 
 .aprovado {
@@ -307,74 +590,177 @@ td span {
     color: #b71c1c;
 }
 
+#baixarrelatorio {
+    display: block;
+
+    background: #079b55;
+
+    margin: 18px auto 0;
+
+    padding: 13px 25px;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#baixarrelatorio:hover {
+    background: #078b4d;
+}
+
+#baixarrelatorio:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
 footer {
+    position: sticky;
+    top: 100vh;
     width: 100%;
-    padding: 30px;
-    background-color: rgb(63, 110, 52);
-    height:90px;
-   text-align: center;
-    gap: 5px;
-    font-size: 20px;
-  width: 100%;
- color: #ffffff;
+    min-height: 100px;
+    padding: 20px 35px;
+    background: #ffffff;
+    border-top: 1px solid #e1e5e3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box; 
 }
 
-a{
-     color: #ffffff;
-}
-img{
-    height: 100px;
-  display: block;
- margin-bottom: 30px;
-  margin-left: auto;
-  margin-right: auto;
+.logo-footer {
+    height: 45px;
+    width: auto;
+
+    margin: 0;
 }
 
-/* RESPONSIVIDADE: estas regras so valem quando a tela tem ate 700px de largura (celular) */
-@media (min-width: 701px) {
-    td select {
-        position: relative;
-        top: -8px; /* sobe o select 4px so no computador; aumente o numero para subir mais */
+.footer-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.footer-texto {
+    color: #7b8580;
+
+    font-size: 12px;
+}
+
+#baremaunimam {
+    padding: 0;
+
+    color: #087c4a;
+
+    background: transparent;
+
+    border: none;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#baremaunimam:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+
+    .layout-principal {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    section {
+        grid-column: 1 / -1;
+    }
+
+    .como-funciona,
+    .precisa-ajuda {
+        min-height: 300px;
     }
 }
+
 @media (max-width: 700px) {
 
-    .grupo-topo {
-        margin-top: 30px;
-        gap: 40px;
-        padding: 0 15px;
-        text-align: center;
+    header {
+        height: 75px;
+
+        padding: 0 18px;
+    }
+
+    .logo-header {
+        height: 45px;
+    }
+
+    .acesso-equipe {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .layout-principal {
+        grid-template-columns: 1fr;
+
+        margin-top: 20px;
+
+        padding: 0 14px;
+    }
+
+    section {
+        grid-column: auto;
+
+        padding: 25px 20px;
+
+        min-height: auto;
+    }
+
+    .como-funciona,
+    .precisa-ajuda {
+        min-height: auto;
+    }
+
+    .precisa-ajuda .icone-ajuda {
+        margin-bottom: 25px;
     }
 
     #resultado {
-        padding: 15px;
+        width: calc(100% - 28px);
+
+        padding: 20px;
+
+        overflow-x: auto;
     }
 
-    #resultado h2 {
-        font-size: 18px;
+    #resultado table {
+        width: 100%;
+
+        margin-bottom: 20px;
+
+        font-size: 11px;
+
+        table-layout: fixed;
     }
 
-    table {
-        font-size: 13px;
-    }
-
-    th, td {
-        padding: 6px;
-    }
-
-    #mensagemfinal {
-        font-size: 16px;
-    }
 
     footer {
-        font-size: 16px;
         padding: 20px;
-        height: auto;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
     }
 
-    /* A tabela "Certificados lidos" tem 5 colunas e nao cabe no celular.
-       Entao cada linha vira um cartao, de cima para baixo: nome, atividade,
-       quantidade (no meio) e, na ultima fileira, vale na esquerda e remover na direita. */
+    .footer-esquerda {
+        flex-direction: column;
+    }
 
     .cartoes thead {
         display: none; /* esconde os titulos das colunas */
@@ -400,6 +786,7 @@ img{
         padding: 0;
         border-bottom: none;
         min-width: 0;
+        margin-top: 10px;
     }
 
     .cartoes td:nth-child(1) { /* nome do arquivo: ocupa as 2 colunas */
@@ -440,7 +827,40 @@ img{
         font-size: 14px;
     }
 
-    .cartoes td:nth-child(5) { /* remover: na direita */
+    .cartoes td:nth-child(5) { 
         text-align: right;
     }
+  .precisa-ajuda {
+    display: block !important;
+    margin-top: 24px !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+    width: calc(100% - 32px) !important; 
+    box-sizing: border-box !important;
+  }
+    
+  footer {
+  display: flex !important;
+  flex-direction: row !important;   
+  justify-content: space-between !important; 
+  align-items: center !important;    
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 20px !important;        
+  margin-top: 30px !important;        
+  box-sizing: border-box !important;
 }
+
+footer a {
+  margin: 0 !important;
+  display: inline-block !important;
+}
+
+
+.logo-footer {
+  max-height: 45px !important;
+  width: auto !important;
+}
+}
+
+
