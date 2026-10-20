@@ -850,6 +850,9 @@ footer {
         border-radius: 25px !important; /* Garante que o arredondamento original continue funcionando */
         overflow: hidden !important;  /* Evita que qualquer conteúdo interno quebre as bordas */
     }
+   .precisa-ajuda.propriedade-alterada {
+    max-width: 94% !important;
+} 
 
 
   footer {
@@ -874,18 +877,5 @@ footer a {
   max-height: 45px !important;
   width: auto !important;
 }
-
-}
-
-@media (max-width: 500px){
-
-            .precisa-ajuda {
-        box-sizing: border-box !important;
-        width: 94% !important;        /* Reduz para 90% para criar as margens nas laterais */
-        max-width: 900px !important;  /* Impede que ele estique demais no celular */
-        margin: 10px auto !important; /* O 'auto' centraliza o card perfeitamente na tela */
-        border-radius: 25px !important; /* Garante que o arredondamento original continue funcionando */
-        overflow: hidden !important;  /* Evita que qualquer conteúdo interno quebre as bordas */
-    }
 
 }
