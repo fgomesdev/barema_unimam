@@ -844,7 +844,7 @@ footer {
     }
         .precisa-ajuda {
         box-sizing: border-box !important;
-        width: 94% !important;        /* Reduz para 90% para criar as margens nas laterais */
+        width: 100% !important;        /* Reduz para 90% para criar as margens nas laterais */
         max-width: 900px !important;  /* Impede que ele estique demais no celular */
         margin: 10px auto !important; /* O 'auto' centraliza o card perfeitamente na tela */
         border-radius: 25px !important; /* Garante que o arredondamento original continue funcionando */
@@ -877,3 +877,15 @@ footer a {
 
 }
 
+@media (max-width: 500px){
+
+            .precisa-ajuda {
+        box-sizing: border-box !important;
+        width: 94% !important;        /* Reduz para 90% para criar as margens nas laterais */
+        max-width: 900px !important;  /* Impede que ele estique demais no celular */
+        margin: 10px auto !important; /* O 'auto' centraliza o card perfeitamente na tela */
+        border-radius: 25px !important; /* Garante que o arredondamento original continue funcionando */
+        overflow: hidden !important;  /* Evita que qualquer conteúdo interno quebre as bordas */
+    }
+
+}
