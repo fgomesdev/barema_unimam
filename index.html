@@ -6,178 +6,142 @@
     <title>Barema</title>
     <link rel="stylesheet" href="index.css">
 </head>
-<header>
+<body>
 
+<header>
     <a href="https://unimam.com.br/" target="_blank">
         <img class="logo-header" src="logo/UNIMAM.png" alt="UNIMAM">
     </a>
 </header>
 
 <main class="layout-principal">
+
     <section>
-        <div class="data-atual"> 📅 Segunda-feira, 20 de Outubro </div>
-        <div class="saudacao">   Olá, estudante!</div>
-        <div class="etiqueta"> PREENCHA SEUS DADOS  </div>
-        <h1 class="titulo-principal">  Prepare seu relatório de atividades </h1>
+        <div class="data-atual" id="data-elemento"></div>
+        <div class="saudacao">Olá, estudante!</div>
+        <div class="etiqueta">PREENCHA SEUS DADOS</div>
+        <h1 class="titulo-principal">Prepare seu relatório de atividades</h1>
         <p class="descricao-principal">
             Informe seus dados e envie seus certificados para calcular
             automaticamente suas atividades complementares.
         </p>
+
         <div class="campo-nome">
-            <label for="nomealuno">Nome completo </label>
-            <input type="text"id="nomealuno"maxlength="80"autocomplete="name" placeholder="Ex.: Maria da Silva Santos">
+            <label for="nomealuno">Nome completo</label>
+            <input type="text" id="nomealuno" maxlength="80" autocomplete="name" placeholder="Ex.: Maria da Silva Santos">
         </div>
+
         <div class="campo-disciplina">
-            <label for="cursos"> Curso: </label>
-            <select name="cursos" id="cursos"class="cursos">
-<option value="" disabled selected hidden> Selecione seu curso </option>
+            <label for="cursos">Curso:</label>
+            <select name="cursos" id="cursos" class="cursos">
 
-<optgroup label="Ciências Exatas">
-<option value="arquitetura-e-urbanismo"> Arquitetura e Urbanismo </option>
- <option value="sistemas-para-internet"> Sistemas para Internet</option>
-<option value="engenharia-civil">Engenharia Civil</option>
+                <option value="" disabled selected hidden>Selecione seu curso</option>
 
-</optgroup>
+                <optgroup label="Ciências Exatas">
+                    <option value="arquitetura-e-urbanismo">Arquitetura e Urbanismo</option>
+                    <option value="sistemas-para-internet">Sistemas para Internet</option>
+                    <option value="engenharia-civil">Engenharia Civil</option>
+                </optgroup>
 
-<optgroup label="Ciências da Saúde">
-<option value="biomedicina">Biomedicina</option>
-<option value="educacao-fisica">Educação Física</option>
-<option value="enfermagem">Enfermagem</option>
-<option value="farmacia">Farmácia</option>
-<option value="fisioterapia">Fisioterapia</option>
-<option value="nutricao">Nutrição</option>
-<option value="odontologia">Odontologia</option>
-<option value="psicologia">Psicologia</option>
-<option value="tecnologo-radiologia">Tecnólogo em Radiologia</option>
-</optgroup>
+                <optgroup label="Ciências da Saúde">
+                    <option value="biomedicina">Biomedicina</option>
+                    <option value="educacao-fisica">Educação Física</option>
+                    <option value="enfermagem">Enfermagem</option>
+                    <option value="farmacia">Farmácia</option>
+                    <option value="fisioterapia">Fisioterapia</option>
+                    <option value="nutricao">Nutrição</option>
+                    <option value="odontologia">Odontologia</option>
+                    <option value="psicologia">Psicologia</option>
+                    <option value="tecnologo-radiologia">Tecnólogo em Radiologia</option>
+                </optgroup>
 
-<optgroup label="Ciências Sociais e Humanas">
+                <optgroup label="Ciências Sociais e Humanas">
+                    <option value="administracao">Administração</option>
+                    <option value="ciencias-contabeis">Ciências Contábeis</option>
+                    <option value="direito">Direito</option>
+                    <option value="geografia">Geografia</option>
+                    <option value="historia">História</option>
+                    <option value="pedagogia">Pedagogia</option>
+                    <option value="servico-social">Serviço Social</option>
+                </optgroup>
 
-<option value="administracao">Administração</option>
-<option value="ciencias-contabeis">Ciências Contábeis</option>
-<option value="direito">Direito</option>
-<option value="geografia">Geografia</option>
-<option value="historia">História</option>
-<option value="pedagogia">Pedagogia</option>
-<option value="servico-social">Serviço Social</option>
-
-</optgroup>
             </select>
         </div>
+
         <div class="grupo-topo">
-            <div class="etiqueta">
-                ENVIE SEUS CERTIFICADOS
-            </div>
+            <div class="etiqueta">ENVIE SEUS CERTIFICADOS</div>
+
             <label id="aprovacao">
                 Selecione os arquivos que deseja analisar.
-                <p>
-                    PDF, DOCX, JPG, JPEG ou PNG
-                </p>
-
+                <p>PDF, DOCX, JPG, JPEG ou PNG</p>
             </label>
 
-            <input type="file"id="arquivos" accept=".pdf,.docx,.jpg,.jpeg,.png" multiple>
-            <label  for="arquivos" id="escolher" >📎 Escolher certificados </label>
+            <input type="file" id="arquivos" accept=".pdf,.docx,.jpg,.jpeg,.png" multiple>
+            <label for="arquivos" id="escolher">📎 Escolher certificados</label>
             <ul id="listaarquivos"></ul>
-
         </div>
 
-
-        <button id="enviar">
-            Calcular meu Barema →
-        </button>
-
+        <button id="enviar">Calcular meu Barema →</button>
         <p id="status"></p>
-
     </section>
+
     <aside class="como-funciona">
-        <div class="mini-titulo">
-            COMO FUNCIONA
-        </div>
-        <h2>
-            Do certificado até o PDF
-        </h2>
-        <div class="etapa">
-            <div class="numero-etapa">
-                1
-            </div>
-            <div class="etapa-conteudo">
-              <strong>
-                    Preencha seus dados
-                </strong>
+        <div class="mini-titulo">COMO FUNCIONA</div>
 
-                <p>
-                    Informe seu nome e selecione seu curso.
-                </p>
-
-            </div>
-
-        </div>
-
+        <h2>Seu Barema em<BR> 4 passos⭐</h2>
 
         <div class="etapa">
-
-            <div class="numero-etapa">
-                2
-            </div>
+            <div class="numero-etapa">1</div>
 
             <div class="etapa-conteudo">
-
-                <strong>
-                    Envie seus certificados
-                </strong>
-
-                <p>
-                    Você pode enviar vários arquivos de uma vez.
-                </p>
-
+                <strong>Preencha seus dados</strong>
+                <p>Informe seu nome e selecione seu curso.</p>
             </div>
-
         </div>
-
 
         <div class="etapa">
-
-            <div class="numero-etapa">
-                3
-            </div>
+            <div class="numero-etapa">2</div>
 
             <div class="etapa-conteudo">
-
-                <strong>
-                    Gere o PDF
-                </strong>
-
-                <p>
-                    Confira o resultado e encaminhe o relatório
-                    para a coordenação.
-                </p>
-
+                <strong>Envie seus certificados</strong>
+                <p>Você pode enviar vários arquivos de uma vez.</p>
             </div>
-
         </div>
 
+        <div class="etapa">
+            <div class="numero-etapa">3</div>
+
+            <div class="etapa-conteudo">
+                <strong>Confira seu resultado</strong>
+                <p>Revise as atividades identificadas e veja quantas horas você já possui.</p>
+            </div>
+        </div>
+
+        <div class="etapa">
+            <div class="numero-etapa">4</div>
+
+            <div class="etapa-conteudo">
+                <strong>Gere o PDF</strong>
+                <p>Se atingiu as horas mínimas, gere o relatório e encaminhe para a coordenação.</p>
+            </div>
+        </div>
     </aside>
+
     <aside class="precisa-ajuda">
-
-        <div class="icone-ajuda">
-            ?
-        </div>
-
-        <div class="mini-titulo"> PRECISA DE AJUDA? </div>
-        <h2> Ficou com alguma dúvida?</h2>
-
-        <p>Consulte o Barema da UNIMAM para verificar os tipos de atividades, limites e horas consideradas.</p>
-
-        <a class="link-ajuda"href="logo/Resolução_Atividades Complementares.pdf" target="_blank" > Visualizar Barema da UNIMAM ↗</a>
-
+        <div class="icone-ajuda">?</div>
+        <div class="mini-titulo" style="font-size: 18px">Atividades Complementares</div>
+        <p style="font-size: 14px">Consulte as regras do barema: atividades, limites e horas consideradas.<br></p>
+        <p style="font-size: 14px">Se ainda tiver dúvidas, entre em contato com a coordenação do seu curso.</p>
+        <a class="link-ajuda" href="logo/Resolução_Atividades Complementares.pdf" target="_blank">Visualizar Barema Oficial ↗</a>
     </aside>
 
 </main>
 
 <div id="resultado">
     <h2>Certificados lidos</h2>
+
     <p class="dica">Confira cada linha. Se alguma atividade ou quantidade estiver errada, corrija aqui mesmo e a conta é refeita.</p>
+
     <table class="cartoes">
         <thead>
             <tr>
@@ -188,10 +152,12 @@
                 <th class="centro">Remover</th>
             </tr>
         </thead>
+
         <tbody id="tabelacertificados"></tbody>
     </table>
 
     <h2>Barema</h2>
+
     <table>
         <thead>
             <tr>
@@ -201,25 +167,30 @@
                 <th>Válidas</th>
             </tr>
         </thead>
+
         <tbody id="tabelabarema"></tbody>
     </table>
+
     <p id="mensagemfinal"></p>
-    <button id="baixarrelatorio">Gerar relatório (PDF)</button> 
+
+    <button id="baixarrelatorio">Gerar relatório (PDF)</button>
 </div>
 
-
 <footer>
-<a href="https://unimam.com.br/" target="_blank"> <img class="logo-footer" src="logo/UNIMAM.png" alt="UNIMAM"> </a>
-    <a class="acesso-equipe" href="https://github.com/fgomesdev" target="_blank"> GITHUB</a>
+    <a href="https://unimam.com.br/" target="_blank">
+        <img class="logo-footer" src="logo/UNIMAM.png" alt="UNIMAM">
+    </a>
+
+    <a class="acesso-equipe" href="https://github.com/fgomesdev" target="_blank">GITHUB</a>
 </footer>
 
-
-   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-   <script src="index.js"></script>
+<script src="index.js"></script>
+
 </body>
 </html>
